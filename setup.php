@@ -121,6 +121,7 @@ function jobman_create_default_settings() {
 								),
 					'user_registration' => 0,
 					'user_registration_required' => 0,
+					'recaptcha_key' => ''
 				);
 
 	$titletext = __( 'Title', 'jobman' );
