@@ -255,7 +255,10 @@ function jobman_display_apply_generated( $foundjob = false, $job = NULL, $cat = 
 		ob_end_clean();
 	}
 
-	$content .= '<tr><td colspan="2" class="submit"><input type="submit" name="submit"  class="button-primary" value="' . __( 'Submit Your Application', 'jobman' ) . '" /></td></tr>';
+	// Add recaptcha v2 JM 10/28/21
+	$content .= '<tr><td colspan = "2"><div class="g-recaptcha" data-sitekey="' . $options['recaptcha_key'] . '"></div></td></tr>';
+	$content .= '<tr><td colspan="2" class="submit"><input type="submit" name="submit"  class="button-primary gform_button button" ';
+	$content .= 'value="' . __( 'Submit Your Application', 'jobman' ) . '" /></td></tr>';
 	$content .= '</table>';
 
 	return $content;

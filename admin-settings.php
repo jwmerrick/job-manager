@@ -128,6 +128,10 @@ function jobman_print_settings_box() {
 				<th scope="row"><?php _e( 'Default email', 'jobman' ) ?></th>
 				<td colspan="2"><input class="regular-text code" type="text" name="default-email" value="<?php echo $options['default_email'] ?>" /></td>
 			</tr>
+			<tr>
+				<th scope="row"><?php _e( 'reCaptcha v2 Site Key', 'jobman' ) ?></th>
+				<td colspan="2"><input class="regular-text code" type="text" name="recaptcha-key" value="<?php echo $options['recaptcha_key'] ?>" /></td>
+			</tr>
 		</table>
 		
 		<p class="submit"><input type="submit" name="submit"  class="button-primary" value="<?php _e( 'Update Settings', 'jobman' ) ?>" /></p>
@@ -592,6 +596,7 @@ function jobman_conf_updatedb() {
 	$options = get_option( 'jobman_options' );
 	
 	$options['default_email'] = $_REQUEST['default-email'];
+	$options['recaptcha_key'] = $_REQUEST['recaptcha-key'];
 
 	if( array_key_exists( 'multi-applications', $_REQUEST ) && $_REQUEST['multi-applications'] )
 		$options['multi_applications'] = 1;

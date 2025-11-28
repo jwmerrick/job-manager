@@ -50,7 +50,7 @@ table.jobs-table th, table.job-table th {
 }
 
 table.job-table th {
-	width: 100px;
+	width: 25%;
 }
 
 table.highlighted {

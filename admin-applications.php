@@ -196,6 +196,7 @@ function jobman_list_applications() {
 			<tr>
 				<th scope="col" id="cb" class="column-cb check-column"><input type="checkbox"></th>
 				<th scope="col"><?php _e( 'Application', 'jobman' ) ?></th>
+				<th scope="col"><?php _e( 'Date', 'jobman' ) ?></th>
 <?php
 	if( count( $fields ) > 0 ) {
 		foreach( $fields as $field ) {
@@ -215,6 +216,7 @@ function jobman_list_applications() {
 			<tr>
 				<th scope="col" class="column-cb check-column"><input type="checkbox"></th>
 				<th scope="col"><?php _e( 'Application', 'jobman' ) ?></th>
+				<th scope="col"><?php _e( 'Date', 'jobman' ) ?></th>
 <?php
 	if( count( $fields ) > 0 ) {
 		foreach( $fields as $field ) {
@@ -453,6 +455,7 @@ function jobman_list_applications() {
 				}
 				$name .= '<br/>';
 			}
+			$appdate = get_the_date('Y-m-d', $app);
 ?>
 			<tr>
 				<th scope="row" class="check-column"><input type="checkbox" name="application[]" value="<?php echo $app->ID ?>" /></th>
@@ -463,6 +466,7 @@ function jobman_list_applications() {
 				<?php echo $name ?>
 				<strong><a href="?page=jobman-list-applications&amp;appid=<?php echo $app->ID ?>"><?php _e( 'View Details', 'jobman' ) ?></a></strong>
 				</td>
+				<td><?php echo $appdate ?></td>
 <?php
 			if( count( $fields ) ) {
 				foreach( $fields as $id => $field ) {
