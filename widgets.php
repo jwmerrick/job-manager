@@ -1,11 +1,11 @@
 <?php
 class JobmanLatestJobsWidget extends WP_Widget {
     /** constructor */
-    function JobmanLatestJobsWidget() {
+    function __construct() {
 		$name = __( 'Job Manager: Recent Jobs', 'jobman');
 		$options = array( 'description' => __( 'A list of the most recent jobs posted to your site', 'jobman' ) );
 		
-        parent::WP_Widget( false, $name, $options );	
+        parent::__construct( false, $name, $options );	
     }
 
     function widget( $args, $instance ) {		
@@ -160,11 +160,11 @@ class JobmanLatestJobsWidget extends WP_Widget {
 
 class JobmanCategoriesWidget extends WP_Widget {
     /** constructor */
-    function JobmanCategoriesWidget() {
+    function __construct() {
 		$name = __( 'Job Manager: Categories', 'jobman');
 		$options = array( 'description' => __( 'A list or dropdown of Job Manager categories', 'jobman' ) );
 		
-        parent::WP_Widget( false, $name, $options );	
+        parent::__construct( false, $name, $options );	
     }
 
     function widget( $args, $instance ) {
@@ -307,11 +307,11 @@ class JobmanCategoriesWidget extends WP_Widget {
 
 class JobmanHighlightedJobsWidget extends WP_Widget {
     /** constructor */
-    function JobmanHighlightedJobsWidget() {
+    function __construct() {
 		$name = __( 'Job Manager: Highlighted Jobs', 'jobman');
 		$options = array( 'description' => __( 'A list jobs that have been marked as highlighted', 'jobman' ) );
 		
-        parent::WP_Widget( false, $name, $options );	
+        parent::__construct( false, $name, $options );	
     }
 
     function widget( $args, $instance ) {
@@ -394,11 +394,11 @@ class JobmanHighlightedJobsWidget extends WP_Widget {
 
 class JobmanJobsWidget extends WP_Widget {
     /** constructor */
-    function JobmanJobsWidget() {
+    function __construct() {
 		$name = __( 'Job Manager: Selected Jobs', 'jobman');
 		$options = array( 'description' => __( 'A customizable list jobs posted to your site', 'jobman' ) );
 		
-        parent::WP_Widget( false, $name, $options );	
+        parent::__construct( false, $name, $options );	
     }
 
     function widget( $args, $instance ) {		

@@ -3,8 +3,8 @@
 Plugin Name: Job Manager
 Plugin URI: http://wp-jobmanager.com/
 Description: A job listing and job application management plugin for WordPress.
-Version: 0.7.25
-Author: Tom Townsend
+Version: 0.8.3
+Author: Tom Townsend, Modified by Jason Merrick
 Author URI: http://www.linkedin.com/in/thomastownsend
 Text Domain: jobman
 Tags: application, applicant tracking, ats, board, candidate, candidates, career, company, current opportunities, direct hire, employee, employer, employees, employment, freelance,
@@ -33,7 +33,7 @@ placement, position, positions, recruiter, recruiting, recruitment, talent
 */
 
 // Version
-define( 'JOBMAN_VERSION', '0.7.25' );
+define( 'JOBMAN_VERSION', '0.8.3' );
 define( 'JOBMAN_DB_VERSION', 19 );
 
 // Define the URL to the plugin folder
@@ -119,6 +119,9 @@ function jobman_nag_ignore() {
 // Load Jobman
 //
 
+// Call jobman_activate so that shortcodes are available for loading
+add_action('init', 'jobman_activate');
+
 // Jobman global functions
 require_once( JOBMAN_DIR . '/functions.php' );
 
@@ -142,6 +145,9 @@ require_once( JOBMAN_DIR . '/widgets.php' );
 
 // Add hooks at the end
 require_once( JOBMAN_DIR . '/hooks.php' );
+
+// Add support for shotcodes in regular pages and posts
+require_once( JOBMAN_DIR . '/shortcodes.php');
 
 // If the user is after a CSV export, give it to them
 if( array_key_exists( 'jobman-mass-edit', $_REQUEST ) && 'export-csv' == $_REQUEST['jobman-mass-edit'] )

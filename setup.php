@@ -32,6 +32,9 @@ function jobman_new_blog( $blog_id, $user_id, $domain, $path, $site_id, $meta ) 
 }
 
 function _jobman_activate() {
+	
+	global $jobman_shortcodes;   //jm
+
 	$options = get_option( 'jobman_options' );
 	if( is_array( $options ) ) {
 		$version = $options['version'];
