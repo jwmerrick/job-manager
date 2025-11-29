@@ -83,25 +83,20 @@ if( is_array( $jobman_options ) && array_key_exists( 'fields', $jobman_options )
 add_action('admin_notices', 'jobman_admin_notice');
 
 function jobman_admin_notice() {
-if ( current_user_can( 'install_plugins' ) )
-   {
-	global $current_user ;
-        $user_id = $current_user->ID;
-        /* Check that the user hasn't already clicked to ignore the message */
-	if ( ! get_user_meta($user_id, 'jobman_ignore_notice') ) {
-        echo '<div class="updated"><p>';   
-        printf(__('Thanks! We hope you enjoy using <a href="http://www.wp-jobmanager.com/go/jobman/" 
-
-target="_blank"><b>Job Manager</b></a>.Please consider<a href="http://www.wp-jobmanager.com/go/rating/" 
-
-target="_blank"><b>Rating</b></a> us. You can also check-out and contribute to our<a href="http://www.wp-jobmanager.com/go/kb/"
-
-target="_blank"><b>Knowledge Base</b></a>. Thanks for your help and rating. | <a 
-
-href="%1$s">Hide Notice</a>'), '?jobman_nag_ignore=0');
-        echo "</p></div>";
+	if ( current_user_can( 'install_plugins' ) ){
+		global $current_user ;
+		$user_id = $current_user->ID;
+		/* Check that the user hasn't already clicked to ignore the message */
+		if ( ! get_user_meta($user_id, 'jobman_ignore_notice') ) {
+			?>
+			<div class="updated"><p>
+			Thanks! We hope you enjoy using <a href="https://github.com/thomastownsend/job-manager" target="_blank"><b>Job Manager</b></a>.
+			Please check-out and contribute to our <a href="https://wordpress.org/support/plugin/job-manager/" target="_blank"><b>Support Forum</b></a>.
+			Thanks for your help! | <a href="<?php printf('%1$s', '?jobman_nag_ignore=0'); ?>">Hide Notice</a>
+			</p></div>
+			<?php
+		}
 	}
-    }
 }
 
 add_action('admin_init', 'jobman_nag_ignore');
@@ -112,6 +107,9 @@ function jobman_nag_ignore() {
         /* If user clicks to ignore the notice, add that to their user meta */
         if ( isset($_GET['jobman_nag_ignore']) && '0' == $_GET['jobman_nag_ignore'] ) {
              add_user_meta($user_id, 'jobman_ignore_notice', 'true', true);
+	 
+        // Always redirect after processing
+        wp_safe_redirect( admin_url( 'admin.php?page=jobman-conf' ) );
 	}
 }
     
