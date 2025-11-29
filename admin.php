@@ -8,6 +8,8 @@ require_once( JOBMAN_DIR . '/admin-frontend-settings.php' );
 require_once( JOBMAN_DIR . '/admin-jobs-settings.php' );
 // Job management
 require_once( JOBMAN_DIR . '/admin-jobs.php' );
+require_once( JOBMAN_DIR . '/admin-job-edit.php' );
+require_once( JOBMAN_DIR . '/admin-jobs-massedit.php' );
 // Application form setup
 require_once( JOBMAN_DIR . '/admin-application-form.php' );
 // Applications
