@@ -506,8 +506,8 @@ function jobman_edit_job( $jobid ) {
 					echo '</table>';
 					echo "<h3>{$field['label']}</h3>";
 					echo "<table>";
-					$tablecount++;
-					$totalrowcount--;
+//					$tablecount++;
+//					$totalrowcount--;
 					$rowcount = 0;
 					break;
 				case 'html':
@@ -584,12 +584,6 @@ function jobman_updatedb() {
 	else {
 		error_log( 'Job Manager: Call to jobman_updatedb() to edit existing job.  Please use jobman_updatedb_edit() instead.');
 	}
-
-	if( array_key_exists( 'jobman-categories', $_REQUEST ) )
-		wp_set_object_terms( $id, $_REQUEST['jobman-categories'], 'jobman_category', false );
-
-	if( $options['plugins']['gxs'] )
-		do_action( 'sm_rebuild' );
 
 	return 0;
 }
