@@ -31,59 +31,15 @@ function jobman_admin_job_edit() {
 // Code from jobman_updatedb responsible for addding a new job
 function jobman_updatedb_add(){
     if( 'new' == $_REQUEST['jobman-jobid'] ) {
+        $job_data_raw = jobman_get_req_fields();
+        $job_data_san = jobman_sanitize_req_fields($job_data_raw);
         $id = wp_insert_post( jobman_build_new_post() );
+
         $options = get_option( 'jobman_options' );
-        $fields = $options['job_fields'];
-        if( count( $fields ) > 0 ) {
-            foreach( $fields as $fid => $field ) {
-                if($field['type'] != 'file' && ( ! array_key_exists( "jobman-field-$fid", $_REQUEST ) || '' == $_REQUEST["jobman-field-$fid"] ) )
-                    continue;
 
-                if( 'file' == $field['type'] && ! array_key_exists( "jobman-field-$fid", $_FILES ) )
-                    continue;
-
-                $data = '';
-                switch( $field['type'] ) {
-                    case 'file':
-                        if( is_uploaded_file( $_FILES["jobman-field-$fid"]['tmp_name'] ) ) {
-                            $upload = wp_upload_bits( $_FILES["jobman-field-$fid"]['name'], NULL, file_get_contents( $_FILES["jobman-field-$fid"]['tmp_name'] ) );
-                            $filetype = wp_check_filetype( $upload['file'] );
-                            if( ! $upload['error'] ) {
-                                $attachment = array(
-                                                'post_title' => '',
-                                                'post_content' => '',
-                                                'post_status' => 'publish',
-                                                'post_mime_type' => $filetype['type']
-                                            );
-                                $data = wp_insert_attachment( $attachment, $upload['file'], $id );
-                                $attach_data = wp_generate_attachment_metadata( $data, $upload['file'] );
-                                wp_update_attachment_metadata( $data, $attach_data );
-                            }
-                        }
-                        break;
-                    case 'checkbox':
-                        $data = implode( ', ', $_REQUEST["jobman-field-$fid"] );
-                        break;
-                    default:
-                        $data = sanitize_text_field( $_REQUEST["jobman-field-$fid"] );
-                }
-
-                add_post_meta( $id, "data$fid", $data, true );
-            }
-        }
-
-        add_post_meta( $id, 'displayenddate', stripslashes( $_REQUEST['jobman-displayenddate'] ), true );
-        add_post_meta( $id, 'iconid', $_REQUEST['jobman-icon'], true );
-        add_post_meta( $id, 'email', $_REQUEST['jobman-email'], true );
-
-        if( array_key_exists( 'jobman-highlighted', $_REQUEST ) && $_REQUEST['jobman-highlighted'] )
-            add_post_meta( $id, 'highlighted', 1, true );
-        else
-            add_post_meta( $id, 'highlighted', 0, true );
-
-        if( array_key_exists( 'jobman-categories', $_REQUEST ) )
-            wp_set_object_terms( $id, $_REQUEST['jobman-categories'], 'jobman_category', false );
-
+        // Process the sanitized submitted data
+        jobman_updatedb_process( $id, $job_data_san );        
+    
         if( $options['plugins']['gxs'] )
             do_action( 'sm_rebuild' );
     }
@@ -107,9 +63,20 @@ function jobman_updatedb_edit(){
     $job_data_san = jobman_sanitize_req_fields($job_data_raw);
 
     $page['ID'] = $job_data_san['jobman-jobid'];
-    $id = wp_update_post( $page );
+    $id = wp_update_post( $page );                                  // Not sure this is needed for edit
     $options = get_option( 'jobman_options' );
 
+    // Process the sanitized submitted data
+    jobman_updatedb_process( $id, $job_data_san );
+
+	if( $options['plugins']['gxs'] )
+		do_action( 'sm_rebuild' );
+}
+
+// Update fields for existing job... common to both editing and new
+function jobman_updatedb_process( $jobid, $job_data_san ){
+    $options = get_option( 'jobman_options' );
+    $page['ID'] = $jobid;
     // Process the sanitized submitted data
     foreach( $job_data_san as $fid => $field ){
         // Named ones
@@ -125,19 +92,18 @@ function jobman_updatedb_edit(){
                 wp_update_post ( $page );
                 break;
             case 'jobman-displayenddate':
-                update_post_meta( $id, 'displayenddate', stripslashes( $field ) );
+                update_post_meta( $jobid, 'displayenddate', stripslashes( $field ) );
                 break;
             case 'jobman-icon':
-                update_post_meta( $id, 'iconid', $field );
+                update_post_meta( $jobid, 'iconid', $field );
                 break;
             case 'jobman-highlighed':
-                update_post_meta( $id, 'highlighted', $field );
+                update_post_meta( $jobid, 'highlighted', $field );
                 break;
             case 'jobman-categories':
-                wp_set_object_terms( $id, $field, 'jobman_category', false );
+                wp_set_object_terms( $jobid, $field, 'jobman_category', false );
                 break;
-        // Editable ones like 'job-field-X'
-            default:
+            default:                                                // Editable ones like 'job-field-X'
                 //error_log (var_export($options['job_fields']));
                 $field_num = substr( $fid, strlen('jobman-field-') );
                 if (is_numeric($field_num)) {
@@ -145,21 +111,21 @@ function jobman_updatedb_edit(){
                     switch ( $field_type ){
                         case 'file':                                // Should be either delete or upload    
                             if ( $field == 'FILE_UPLOAD' ){
-                                $att_id = jobman_job_field_upload( $id, $field_num );   
-                                update_post_meta( $id, 'data' . $field_num, $att_id);  
+                                $att_id = jobman_job_field_upload( $jobid, $field_num );   
+                                update_post_meta( $jobid, 'data' . $field_num, $att_id);  
                             }                               
                             break;
                         case 'checkbox':
                             $field_imp = implode( ', ', $field );   // Need to test this
-                            update_post_meta( $id, 'data' . $field_num, $field_imp );
+                            update_post_meta( $jobid, 'data' . $field_num, $field_imp );
                             break;
                         default:
-                            update_post_meta( $id, 'data' . $field_num, $field );
+                            update_post_meta( $jobid, 'data' . $field_num, $field );
                     }
                 } elseif ( substr($field_num, 0, 6) == 'delete' ) { // It's a delete attchment request
                     $field_num = substr( $fid, strlen('jobman-field-delete-') );
                     wp_delete_attachment( $job_data_san['jobman-field-current-' . $field_num] );
-                    update_post_meta( $id, 'data' . $field_num, '');
+                    update_post_meta( $jobid, 'data' . $field_num, '');
                     error_log ('jobman_updatedb DELETE!');
                 } else {
                     error_log ('jobman_updatedb_edit(): Not sure of type for ' . $fid . 
@@ -167,9 +133,6 @@ function jobman_updatedb_edit(){
                 }
         }
     }
-
-	if( $options['plugins']['gxs'] )
-		do_action( 'sm_rebuild' );
 }
 
 // Return an associative array with the job fields included in the request
@@ -244,15 +207,11 @@ function jobman_build_new_post(){
 // Handle requested file upload in new job or job edit
 // Returns ID for attachment post to store in metadata
 function jobman_job_field_upload ( $job_id, $field_index ){
-    //$upload = wp_upload_bits( $_FILES["jobman-field-$fid"]['name'], NULL, file_get_contents( $_FILES["jobman-field-$fid"]['tmp_name'] ) );
-    $file_index = 'jobman-field-' . $field_index;
+     $file_index = 'jobman-field-' . $field_index;
     $overrides = array( 'action' => 'job_edit' );                   // Check for appropriate action for upload
     $upload = wp_handle_upload ( $_FILES[ $file_index ], $overrides );
     error_log('$upload -> ' . var_export($upload, true));
     if( ! array_key_exists ('error', $upload) ) {
-    //                         // Delete the old attachment
-    //                         if( array_key_exists( "jobman-field-current-$fid", $job_data_san ) )
-    //                             wp_delete_attachment( $job_data_san["jobman-field-current-$fid"] );
         $filetype = wp_check_filetype( $upload['file'] );
         $attachment = array(
                         'guid' => $upload['url'],
@@ -267,10 +226,9 @@ function jobman_job_field_upload ( $job_id, $field_index ){
         wp_update_attachment_metadata( $data, $attach_data );
         return $data;
     } else {                                                        // Upload error
- //       $data = get_post_meta( $id, "data$fid", true );
+        return '';
         error_log( 'jobman_job_field_upload() error: ' . var_export($upload['error'], true));
     }
-
 }
 
 // Redirect helper: back to job list after a job edit

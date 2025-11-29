@@ -555,39 +555,6 @@ function jobman_edit_job( $jobid ) {
 	return 1;
 }
 
-function jobman_updatedb() {
-	global $wpdb, $current_user;
-	$options = get_option( 'jobman_options' );
-
-	wp_get_current_user();
-
-	if( array_key_exists( 'jobman-displaystartdate', $_REQUEST ) && ! empty( $_REQUEST['jobman-displaystartdate'] ) )
-		$displaystartdate = date( 'Y-m-d H:i:s', strtotime( stripslashes( $_REQUEST['jobman-displaystartdate'] ) ) );
-	else
-		$displaystartdate = date( 'Y-m-d H:i:s' );
-
-	$page = array(
-				'comment_status' => 'closed',
-				'ping_status' => 'closed',
-				'post_status' => 'publish',
-				'post_content' => '',
-				'post_name' => strtolower( str_replace( ' ', '-', $_REQUEST['jobman-title'] ) ),
-				'post_title' => stripslashes( html_entity_decode( $_REQUEST['jobman-title'] ) ),
-				'post_type' => 'jobman_job',
-				'post_date' => $displaystartdate,
-				'post_date_gmt' => $displaystartdate,
-				'post_parent' => $options['main_page']);
-
-	if( 'new' == $_REQUEST['jobman-jobid'] ) {
-		error_log( 'Job Manager: Call to jobman_updatedb() to create new job.  Please use jobman_updatedb_add() instead.');
-	}
-	else {
-		error_log( 'Job Manager: Call to jobman_updatedb() to edit existing job.  Please use jobman_updatedb_edit() instead.');
-	}
-
-	return 0;
-}
-
 function jobman_job_delete_confirm() {
 ?>
 	<div class="wrap">
