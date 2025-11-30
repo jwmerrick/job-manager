@@ -97,11 +97,14 @@ function jobman_updatedb_process( $jobid, $job_data_san ){
             case 'jobman-icon':
                 update_post_meta( $jobid, 'iconid', $field );
                 break;
-            case 'jobman-highlighed':
+            case 'jobman-highlighted':
                 update_post_meta( $jobid, 'highlighted', $field );
                 break;
             case 'jobman-categories':
                 wp_set_object_terms( $jobid, $field, 'jobman_category', false );
+                break;
+            case 'jobman-email':
+                update_post_meta( $jobid, 'email', $field );
                 break;
             default:                                                // Editable ones like 'job-field-X'
                 //error_log (var_export($options['job_fields']));
@@ -116,7 +119,8 @@ function jobman_updatedb_process( $jobid, $job_data_san ){
                             }                               
                             break;
                         case 'checkbox':
-                            $field_imp = implode( ', ', $field );   // Need to test this
+                            $field_imp = implode( ', ', $field );   // Need to test and fix this (not working)
+                            error_log('Processing Checkbox: ' . var_export($field_imp, true));
                             update_post_meta( $jobid, 'data' . $field_num, $field_imp );
                             break;
                         default:
@@ -136,6 +140,7 @@ function jobman_updatedb_process( $jobid, $job_data_san ){
 }
 
 // Return an associative array with the job fields included in the request
+// This way we'll only process keys that we're expecting
 function jobman_get_req_fields(){
     $job_data = array();
     $options = get_option( 'jobman_options' );
@@ -160,13 +165,9 @@ function jobman_get_req_fields(){
     $job_data = jobman_add_if_exists( $job_data, 'jobman-icon' );
     $job_data = jobman_add_if_exists( $job_data, 'jobman-highlighted' );
     $job_data = jobman_add_if_exists( $job_data, 'jobman-categories' );
+    $job_data = jobman_add_if_exists( $job_data, 'jobman-email' );
 
     error_log ( 'jobman_get_req_fields(): ' . var_export($job_data, true) );
-    return $job_data;
-}
-
-// Sanitize request fields
-function jobman_sanitize_req_fields($job_data){
     return $job_data;
 }
 
@@ -175,6 +176,100 @@ function jobman_add_if_exists( $job_data, $key ){
     if( array_key_exists( $key, $_REQUEST) )
         $job_data[$key] = $_REQUEST[$key];
     return $job_data;
+}
+
+// Sanitize request fields
+function jobman_sanitize_req_fields($job_data){
+    $job_data_san = array();
+    $options = get_option( 'jobman_options' );
+    foreach( $job_data as $fid => $field ){
+    // Named ones
+    switch ($fid){
+        case 'jobman-jobid':                                        // Should be "new" or numeric.
+            if ( $job_data[$fid] == 'new' )
+                $job_data_san[$fid] = 'new';
+            elseif ( is_numeric($job_data[$fid]) )
+                $job_data_san[$fid] = sanitize_key($job_data[$fid]);
+            else   
+                error_log ('jobman_santitize_req_fields: Sanitization Failed: ' . $job_data[$fid]);
+            break;                                             
+        case 'jobman-title':                                        // Should be text.
+            $job_data_san[$fid] = sanitize_text_field($job_data[$fid]);
+            break;
+        case 'jobman-displaystartdate':
+            $job_data_san[$fid] = sanitize_text_field($job_data[$fid]);
+            break;
+        case 'jobman-displayenddate':
+            $job_data_san[$fid] = sanitize_text_field($job_data[$fid]);
+            break;
+        case 'jobman-icon':
+            $job_data_san[$fid] = sanitize_key($job_data[$fid]);    
+            break;
+        case 'jobman-highlighted':                                  // Checkbox should be 0 or 1
+            if( ($job_data[$fid] == '0') or ($job_data[$fid] == '1') )
+                $job_data_san[$fid] = $job_data[$fid];
+            else
+                error_log ('jobman_sanitize_req_fields: Sanitization Failed: '. $job_data[$fid]);
+            break;
+        case 'jobman-categories':                                   // Should be an array of categories
+            if ( is_array($job_data[$fid]) ){
+                $categories = array();
+                foreach ($job_data[$fid] as $i => $categ){
+                    if ( term_exists($categ) )
+                        $categories[$i] = $categ;
+                }
+                $job_data_san[$fid] = $categories;              
+            } else {
+                error_log ('jobman_sanitize_req_fields: Sanitization Failed: '. $job_data[$fid]);
+            }
+            break;
+        case 'jobman-email':
+            $job_data_san[$fid] = sanitize_email($job_data[$fid]);
+            break;
+        default:                                                    // Editable ones like 'job-field-X'
+            $field_num = substr( $fid, strlen('jobman-field-') );
+            if (is_numeric($field_num)) {
+                $field_type = $options['job_fields'][$field_num]['type'];
+                switch ( $field_type ){                             // See admin-jobs-settings.php for types
+                    case 'text':                        
+                        $job_data_san[$fid] = sanitize_text_field($job_data[$fid]);
+                        break;
+                    case 'radio':
+                        $job_data_san[$fid] = $job_data[$fid];      // Need to do.
+                        break;
+                    case 'checkbox':
+                        $job_data_san[$fid] = $job_data[$fid];      // Need to do.
+                        break;
+                    case 'textarea':
+                        $job_data_san[$fid] = sanitize_textarea_field($job_data[$fid]);
+                        break;
+                    case 'date':
+                        $job_data_san[$fid] = sanitize_text_field($job_data[$fid]);      
+                        break;
+                    case 'file':
+                        $job_data_san[$fid] = $job_data[$fid];      // Need to do.
+                        break;
+                    case 'heading':
+                        $job_data_san[$fid] = sanitize_text_field($job_data[$fid]);
+                        break;
+                    case 'html':
+                        $job_data_san[$fid] = $job_data[$fid];      // Need to do.
+                        break;
+                    case 'blank':                                   // Is this really needed?
+                        $job_data_san[$fid] = $job_data[$fid];      // Need to do.
+                        break;
+                    default:
+                        $job_data_san[$fid] = $job_data[$fid];      // Need to do.
+                }
+            } elseif ( substr($field_num, 0, 6) == 'delete' ) {     // It's a delete attchment request
+                $job_data_san[$fid] = $job_data[$fid];              // Need to do.
+            } else {
+                error_log ('jobman_sanitize_req_fields(): Not sure of type for ' . $fid . 
+                ' I got this for field_num: ' . $field_num);
+            }
+        }
+    }
+    return $job_data_san;
 }
 
 // Build a blank post outline to use for creating new a job

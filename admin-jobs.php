@@ -336,6 +336,8 @@ function jobman_edit_job( $jobid ) {
 				}
 			}
 ?>
+					<!-- Hidden control to send none when all unchecked -->
+					<input type="hidden" name="jobman-categories[]" value="" />
 					<input type="checkbox" name="jobman-categories[]" value="<?php echo $cat->slug ?>"<?php echo $checked ?> /> <?php echo $cat->name ?><br/>
 <?php
 		}
@@ -423,7 +425,7 @@ function jobman_edit_job( $jobid ) {
 					echo '</td>';
 					echo "<td><span class='description'>{$field['description']}</span></td></tr>";
 					break;
-				case 'checkbox':
+				case 'checkbox':									// The intent was to have an array of checkboxes I think?
 					if( '' != $field['label'] )
 						echo "<th scope='row'>{$field['label']}</th><td>";
 					else
@@ -442,6 +444,10 @@ function jobman_edit_job( $jobid ) {
 						$checked = '';
 						if( in_array( $value, $data ) )
 							$checked = ' checked="checked"';
+						?> 
+							<!-- Hidden input to send blank string when all are unchecked -->
+							<input type="hidden" name="jobman-field-<?= $id ?>[]" value="" />				
+						<?php
 						echo "<input type='checkbox' name='jobman-field-{$id}[]' value='$value'$checked /> {$display_values[$key]}<br/>";
 					}
 					echo '</td>';
@@ -544,7 +550,11 @@ function jobman_edit_job( $jobid ) {
 ?>
 			<tr>
 				<th scope="row"><?php _e( 'Highlighted?', 'jobman' ) ?></th>
-				<td><input type="checkbox" name="jobman-highlighted" value="1" <?php echo $checked ?>/></td>
+				<td>
+					<!-- Hidden control to send a '0' when unchecked -->
+					<input type="hidden" name="jobman-highlighted" value="0">				
+					<input type="checkbox" name="jobman-highlighted" value="1" <?php echo $checked ?>/>
+				</td>
 				<td><span class="description"><?php _e( 'Mark this job as highlighted? For the behaviour of highlighted jobs, see the Display Settings admin page.', 'jobman' ) ?></span></td>
 			</tr>
 		</table>
