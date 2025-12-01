@@ -50,7 +50,7 @@ function jobman_updatedb_add(){
 // Which may include update or delete file attachment if included or requested
 // Or they can be of type checkbox or text
 // Then, remaining fields: jobman-displayenddate, jobman-icon, jobman-email,
-// jobman-highlighted, jobman_category
+// jobman-highlighted, jobman-categories
 function jobman_updatedb_edit(){
     global $current_user;
     $data = get_post( $_REQUEST['jobman-jobid'] );
@@ -171,7 +171,7 @@ function jobman_get_req_fields(){
     return $job_data;
 }
 
-// If item exists in the requesst, add it to the array and return
+// If item exists in the request, add it to the array and return
 function jobman_add_if_exists( $job_data, $key ){
     if( array_key_exists( $key, $_REQUEST) )
         $job_data[$key] = $_REQUEST[$key];
@@ -247,7 +247,7 @@ function jobman_sanitize_req_fields($job_data){
                         $job_data_san[$fid] = sanitize_text_field($job_data[$fid]);      
                         break;
                     case 'file':
-                        $job_data_san[$fid] = $job_data[$fid];      // Need to do.
+                        $job_data_san[$fid] = $job_data[$fid];      // Handled by jobman_job_field_upload
                         break;
                     case 'heading':
                         $job_data_san[$fid] = sanitize_text_field($job_data[$fid]);
@@ -302,14 +302,14 @@ function jobman_build_new_post(){
 // Handle requested file upload in new job or job edit
 // Returns ID for attachment post to store in metadata
 function jobman_job_field_upload ( $job_id, $field_index ){
-     $file_index = 'jobman-field-' . $field_index;
+    $file_index = 'jobman-field-' . $field_index;
     $overrides = array( 'action' => 'job_edit' );                   // Check for appropriate action for upload
     $upload = wp_handle_upload ( $_FILES[ $file_index ], $overrides );
     error_log('$upload -> ' . var_export($upload, true));
     if( ! array_key_exists ('error', $upload) ) {
         $filetype = wp_check_filetype( $upload['file'] );
         $attachment = array(
-                        'guid' => $upload['url'],
+                        'guid' => sanitize_url($upload['url']),
                         'post_title' => '',
                         'post_content' => '',
                         'post_status' => 'publish',
