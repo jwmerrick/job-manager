@@ -4,40 +4,35 @@ function jobman_list_jobs() {
 	$fields = $options['job_fields'];
 
 	$displayed = 1;
+
+	// Figure out which page to display and display it.
+	// Actual request handling in admin-job-edit.php and admin-jobs-massedit.php
 	if( array_key_exists( 'jobman-mass-edit-jobs', $_REQUEST ) ) {
 		if( 'delete' == $_REQUEST['jobman-mass-edit-jobs'] ) {
-			if( array_key_exists( 'jobman-delete-confirmed', $_REQUEST ) ) {
-				check_admin_referer( 'jobman-mass-delete-jobs' );
-				jobman_job_delete();
-			}
-			else {
+			if( ! array_key_exists( 'jobman-delete-confirmed', $_REQUEST ) ) {
 				check_admin_referer( 'jobman-mass-edit-jobs' );
 				jobman_job_delete_confirm();
 				return;
 			}
 		}
-		else if( 'archive' == $_REQUEST['jobman-mass-edit-jobs'] ) {
-			check_admin_referer( 'jobman-mass-edit-jobs' );
-			jobman_job_archive();
-		}
-		else if( 'unarchive' == $_REQUEST['jobman-mass-edit-jobs'] ) {
-			check_admin_referer( 'jobman-mass-edit-jobs' );
-			jobman_job_unarchive();
-		}
-	}
-	else if( isset( $_REQUEST['jobman-jobid'] ) ) {
+	} elseif ( isset( $_REQUEST['jobman-jobid'] ) ) {
 		$displayed = jobman_edit_job( $_REQUEST['jobman-jobid'] );
 		if( 1 == $displayed )
 			return;
 	}
 
+	// If the request is not for a mass delete (which triggers the confirm dispaly)
+	// or to edit an individual job (which triggerd the job edit form), then we fall
+	// through to display the job list.
 
 ?>
 	<div class="wrap">
 		<h2><?php _e( 'Job Manager: Jobs List', 'jobman' ) ?></h2>
 		<form action="" method="post">
-		<input type="hidden" name="jobman-jobid" value="new" />
-		<p class="submit"><input type="submit" name="submit" class="button-primary" value="<?php _e( 'New Job', 'jobman' ) ?>" /></p>
+			<input type="hidden" name="jobman-jobid" value="new" />
+			<p class="submit">
+				<input type="submit" name="submit" class="button-primary" value="<?php _e( 'New Job', 'jobman' ) ?>" />
+			</p>
 		</form>
 <?php
 	switch($displayed) {
@@ -57,7 +52,8 @@ function jobman_list_jobs() {
 
 	$jobs = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=publish,draft,future' );
 ?>
-		<form action="" method="post">
+		<form action="<?php echo admin_url('admin-post.php'); ?>" method="post">
+			<input type="hidden" name="action" value="jobman_mass_edit_jobs"> 
 <?php
 	wp_nonce_field( 'jobman-mass-edit-jobs' );
 ?>
@@ -120,6 +116,9 @@ function jobman_list_jobs() {
 <?php
 }
 
+// Generates the html for the job list, and return a list of expired jobs
+// Can be called back with that same list of expired jobs and $showexpired
+// set to true in order to generate the html for the list of expired jobs.
 function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 		global $current_user;
 
@@ -191,14 +190,19 @@ function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 				<a href="<?php echo get_page_link( $job->ID ) ?>"><?php _e( 'View', 'jobman' ) ?></a>
 <?php
 			if( current_user_can( 'edit_others_posts' ) || $job->post_author == $current_user->ID ) {
+				$url = wp_nonce_url( admin_url('admin-post.php'), 'jobman-mass-edit-jobs' );
+				$url = add_query_arg('action', 'jobman_mass_edit_jobs', $url);
+				$url = add_query_arg('job[]', $job->ID, $url);
 				if( $display ) {
+					$url = add_query_arg('jobman-mass-edit-jobs', 'archive', $url);
 ?>
-				| <a href="<?php echo wp_nonce_url( admin_url( "admin.php?page=jobman-list-jobs&amp;jobman-mass-edit-jobs=archive&amp;job[]=$job->ID" ), 'jobman-mass-edit-jobs' ) ?>"><?php _e( 'Archive', 'jobman' ) ?></a>
+				| <a href="<?php echo $url; ?>"><?php _e( 'Archive X', 'jobman' ) ?></a>
 <?php
 				}
 				else {
+					$url = add_query_arg('jobman-mass-edit-jobs', 'unarchive', $url);
 ?>
-				| <a href="<?php echo wp_nonce_url( admin_url( "admin.php?page=jobman-list-jobs&amp;jobman-mass-edit-jobs=unarchive&amp;job[]=$job->ID" ), 'jobman-mass-edit-jobs' ) ?>"><?php _e( 'Unarchive', 'jobman' ) ?></a>
+				| <a href="<?php echo $url; ?>"><?php _e( 'Unarchive X', 'jobman' ) ?></a>
 <?php
 				}
 			}
@@ -568,91 +572,18 @@ function jobman_edit_job( $jobid ) {
 function jobman_job_delete_confirm() {
 ?>
 	<div class="wrap">
-	<form action="" method="post">
-	<input type="hidden" name="jobman-delete-confirmed" value="1" />
-	<input type="hidden" name="jobman-mass-edit-jobs" value="delete" />
-	<input type="hidden" name="jobman-job-ids" value="<?php echo implode( ',', $_REQUEST['job'] ) ?>" />
-<?php
-	wp_nonce_field( 'jobman-mass-delete-jobs' );
-?>
-		<h2><?php _e( 'Job Manager: Jobs', 'jobman' ) ?></h2>
-		<p class="error"><?php _e( 'This will permanently delete all of the selected jobs. Please confirm that you want to continue.', 'jobman' ) ?></p>
-		<p class="submit"><input type="submit" name="submit"  class="button-primary" value="<?php _e( 'Delete Jobs', 'jobman' ) ?>" /></p>
-	</form>
+		<form action="<?php echo admin_url('admin-post.php'); ?>" method="post">
+			<input type="hidden" name="action" value="jobman_mass_edit_jobs"> 
+			<input type="hidden" name="jobman-delete-confirmed" value="1" />
+			<input type="hidden" name="jobman-mass-edit-jobs" value="delete" />
+			<input type="hidden" name="jobman-job-ids" value="<?php echo implode( ',', $_REQUEST['job'] ) ?>" />
+			<?php wp_nonce_field( 'jobman-mass-delete-jobs' ); ?>
+			<h2><?php _e( 'Job Manager: Jobs', 'jobman' ) ?></h2>
+			<p class="error"><?php _e( 'This will permanently delete all of the selected jobs. Please confirm that you want to continue.', 'jobman' ) ?></p>
+			<p class="submit"><input type="submit" name="submit"  class="button-primary" value="<?php _e( 'Delete Jobs', 'jobman' ) ?>" /></p>
+		</form>
 	</div>
 <?php
-}
-
-function jobman_job_delete() {
-	$options = get_option( 'jobman_options' );
-
-	$jobs = explode( ',', $_REQUEST['jobman-job-ids'] );
-
-	// Get the file fields
-	$file_fields = array();
-	foreach( $options['job_fields'] as $id => $field ) {
-		if( 'file' == $field['type'] )
-			$file_fields[] = $id;
-	}
-
-	foreach( $jobs as $job ) {
-		// Remove reference from applications
-		$apps = get_posts( 'post_type=jobman_app&numberposts=-1&meta_key=job&meta_value=' . $job );
-		if( ! empty( $apps ) ) {
-			foreach( $apps as $app ) {
-				delete_post_meta( $app->ID, 'job', $job );
-			}
-		}
-
-		$jobmeta = get_post_custom( $job );
-		$jobdata = array();
-		if( is_array( $jobmeta ) ) {
-			foreach( $jobmeta as $key => $value ) {
-				if( is_array( $value ) )
-					$jobdata[$key] = $value[0];
-				else
-					$jobdata[$key] = $value;
-			}
-		}
-
-		// Delete any files uploaded
-		foreach( $file_fields as $fid ) {
-			if( array_key_exists( "data$fid", $jobdata )  && '' != $jobdata["data$fid"] )
-				wp_delete_post( $jobdata["data$fid"] );
-		}
-		// Delete the job
-		wp_delete_post( $job );
-	}
-}
-
-function jobman_job_archive() {
-	$jobs = $_REQUEST['job'];
-
-	if( ! is_array( $jobs ) )
-		return;
-
-	$data = array( 'post_status' => 'draft' );
-	foreach( $jobs as $job ) {
-		$data['ID'] = $job;
-		wp_update_post( $data );
-	}
-}
-
-function jobman_job_unarchive() {
-	$jobs = $_REQUEST['job'];
-
-	if( ! is_array( $jobs ) )
-		return;
-
-	$data = array( 'post_status' => 'publish' );
-	foreach( $jobs as $job ) {
-		$data['ID'] = $job;
-		$data['post_date'] = date( 'Y-m-d H:i:s', strtotime( '-1 day' ) );
-		$data['post_date_gmt'] = date( 'Y-m-d H:i:s', strtotime( '-1 day' ) );
-		wp_update_post( $data );
-
-		update_post_meta( $job, 'displayenddate', '' );
-	}
 }
 
 ?>
