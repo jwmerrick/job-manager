@@ -8,8 +8,8 @@ Tags: application, applicant tracking, ats, board, candidate, candidates, career
       hiring, hire, interview, interviews, job, jobs, job board, job list, job lists ,job listing, job manager, job management, job role, job search,  list, listing, manager, opportunities,
       placement, position, positions, recruiter, recruiting, recruitment, talent
 Requires at least: 2.9
-Tested up to: 4.3
-Stable tag: 7.2.5
+Tested up to: 6.8.3
+Stable tag: 8.3.0
 
 A job listing and job application management plugin for WordPress.
 
@@ -201,6 +201,10 @@ Notice the version number in brackets. This is the version series that the trans
 Print Icon by [Piotr Kwiatkowski](http://www.piotrkwiatkowski.co.uk), under a [CC BY-ND](http://creativecommons.org/licenses/by-nd/3.0/) license.
 
 == Changelog ==
+
+= 0.8.3 =
+* Updates for compatibility with Wordpress 6.8.3
+* Modifications to address security vulnerability per CVE-2021-39336
 
 = 0.7.25 =
 * FIXED Cross-Site Scripting exploit (XSS)
