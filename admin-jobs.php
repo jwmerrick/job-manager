@@ -168,7 +168,7 @@ function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 			elseif( ! $display )
 				$class = "expired";
 ?>
-			<tr class="<?php echo $class ?>">
+			<tr class="<?= $class ?>">
 				<th scope="row" class="check-column">
 <?php
 			if( current_user_can( 'edit_others_posts' ) || $job->post_author == $current_user->ID ) {
@@ -178,7 +178,12 @@ function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 			}
 ?>
 				</th>
-				<td class="post-title page-title column-title"><strong><a href="?page=jobman-list-jobs&amp;jobman-jobid=<?php echo $job->ID ?>"><?php echo $job->post_title ?></a></strong>
+				<td class="post-title page-title column-title">
+					<strong>
+						<a href="?page=jobman-list-jobs&amp;jobman-jobid=<?php echo $job->ID ?>">
+							<?php echo $job->post_title ?>
+						</a>
+					</strong>
 				<div class="row-actions">
 <?php
 			if( current_user_can( 'edit_others_posts' ) || $job->post_author == $current_user->ID ) {
@@ -196,19 +201,19 @@ function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 				if( $display ) {
 					$url = add_query_arg('jobman-mass-edit-jobs', 'archive', $url);
 ?>
-				| <a href="<?php echo $url; ?>"><?php _e( 'Archive X', 'jobman' ) ?></a>
+				| <a href="<?= $url; ?>"><?php _e( 'Archive', 'jobman' ) ?></a>
 <?php
 				}
 				else {
 					$url = add_query_arg('jobman-mass-edit-jobs', 'unarchive', $url);
 ?>
-				| <a href="<?php echo $url; ?>"><?php _e( 'Unarchive X', 'jobman' ) ?></a>
+				| <a href="<?= $url; ?>"><?php _e( 'Unarchive', 'jobman' ) ?></a>
 <?php
 				}
 			}
 ?>
 				</div></td>
-				<td><?php echo $catstring ?></td>
+				<td><?= $catstring ?></td>
 <?php
 			if( count( $fields ) ) {
 				foreach( $fields as $id => $field ) {
@@ -221,7 +226,7 @@ function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 								$data = implode( ', ', $data );
 						}
 ?>
-				<td><?php echo $data ?></td>
+				<td><?= $data ?></td>
 <?php
 					}
 				}
@@ -232,9 +237,12 @@ function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 			else if( ! $display )
 				$status = __( 'Expired', 'jobman' );
 ?>
-				<td><?php echo date( 'Y-m-d', strtotime( $job->post_date ) ) ?> - <?php echo ( '' == $displayenddate )?( __( 'End of Time', 'jobman' ) ):( $displayenddate ) ?><br/>
-				<?php echo $status ?></td>
-				<td><?php echo $applications ?></td>
+				<td>
+					<?php echo date( 'Y-m-d', strtotime( $job->post_date ) ) ?> - 
+					<?php echo ( '' == $displayenddate )?( __( 'End of Time', 'jobman' ) ):( $displayenddate ) ?>
+					<br/>
+				<?= $status ?></td>
+				<td><?= $applications ?></td>
 			</tr>
 <?php
 		}
@@ -311,16 +319,16 @@ function jobman_edit_job( $jobid ) {
 	?>" enctype="multipart/form-data" method="post">
 	<input type="hidden" name="action" value="job_edit"> 
 	<input type="hidden" name="jobmansubmit" value="1" />
-	<input type="hidden" name="jobman-jobid" value="<?php echo $jobid ?>" />
+	<input type="hidden" name="jobman-jobid" value="<?= $jobid ?>" />
 <?php
 	wp_nonce_field( "jobman-edit-job-$jobid");
 ?>
 	<div class="wrap">
-		<h2><?php echo $title ?></h2>
+		<h2><?= $title ?></h2>
 		<table id="jobman-job-edit" class="form-table">
 			<tr>
 				<th scope="row"><?php _e( 'Job ID', 'jobman' ) ?></th>
-				<td><?php echo $display_jobid ?></td>
+				<td><?= $display_jobid ?></td>
 				<td></td>
 			</tr>
 			<tr>
@@ -342,13 +350,17 @@ function jobman_edit_job( $jobid ) {
 ?>
 					<!-- Hidden control to send none when all unchecked -->
 					<input type="hidden" name="jobman-categories[]" value="" />
-					<input type="checkbox" name="jobman-categories[]" value="<?php echo $cat->slug ?>"<?php echo $checked ?> /> <?php echo $cat->name ?><br/>
+					<input type="checkbox" name="jobman-categories[]" value="<?php echo $cat->slug ?>"<?= $checked ?> /> <?php echo $cat->name ?><br/>
 <?php
 		}
 	}
 ?>
 				</div></td>
-				<td><span class="description"><?php _e( 'Categories that this job belongs to. It will be displayed in the job list for each category selected.', 'jobman' ) ?></span></td>
+				<td>
+					<span class="description">
+						<?php _e( 'Categories that this job belongs to. It will be displayed in the job list for each category selected.', 'jobman' ) ?>
+					</span>
+				</td>
 			</tr>
 			<tr>
 				<th scope="row"><?php _e( 'Icon', 'jobman' ) ?></th>
@@ -363,7 +375,8 @@ function jobman_edit_job( $jobid ) {
 
 			$post = get_post( $icon );
 ?>
-					<input type="radio" name="jobman-icon" value="<?php echo $icon ?>"<?php echo $checked ?> /> <img src="<?php echo wp_get_attachment_url( $icon ) ?>" /> <?php echo $post->post_title ?><br/>
+					<input type="radio" name="jobman-icon" value="<?= $icon ?>"<?= $checked ?> /> 
+					<img src="<?php echo wp_get_attachment_url( $icon ) ?>" /> <?php echo $post->post_title ?><br/>
 <?php
 		}
 	}
@@ -373,13 +386,16 @@ function jobman_edit_job( $jobid ) {
 	else
 		$checked = '';
 ?>
-					<input type="radio" name="jobman-icon"<?php echo $checked ?> value="" /> <?php _e( 'No Icon', 'jobman' ) ?><br/>
+					<input type="radio" name="jobman-icon"<?= $checked ?> value="" /> <?php _e( 'No Icon', 'jobman' ) ?><br/>
 				</div></td>
 				<td><span class="description"><?php _e( 'Icon to display for this job in the Job List', 'jobman' ) ?></span></td>
 			</tr>
 			<tr>
 				<th scope="row"><?php _e( 'Title', 'jobman' ) ?></th>
-				<td><input class="regular-text code" type="text" name="jobman-title" value="<?php echo ( isset( $job->post_title ) )?( $job->post_title ):( '' ) ?>" /></td>
+				<td>
+					<input class="regular-text code" type="text" name="jobman-title" 
+					value="<?php echo ( isset( $job->post_title ) )?( $job->post_title ):( '' ) ?>" />
+				</td>
 				<td></td>
 			</tr>
 <?php
@@ -534,18 +550,44 @@ function jobman_edit_job( $jobid ) {
 ?>
 			<tr>
 				<th scope="row"><?php _e( 'Display Start Date', 'jobman' ) ?></th>
-				<td><input class="datepicker" type="text" name="jobman-displaystartdate" value="<?php echo ( 'new' != $jobid )?( date( 'Y-m-d', strtotime( $job->post_date ) ) ):( '' ) ?>" /></td>
-				<td><span class="description"><?php _e( 'The date this job should start being displayed on the site. To start displaying immediately, leave blank.', 'jobman' ) ?></span></td>
+				<td>
+					<input class="datepicker" type="text" name="jobman-displaystartdate" 
+						value="<?php echo ( 'new' != $jobid )?( date( 'Y-m-d', strtotime( $job->post_date ) ) ):( '' ) ?>" />
+				</td>
+				<td>
+					<span class="description">
+						<?php _e( 'The date this job should start being displayed on the site. To start displaying 
+						immediately, leave blank.', 'jobman' ) ?>
+					</span>
+				</td>
 			</tr>
 			<tr>
 				<th scope="row"><?php _e( 'Display End Date', 'jobman' ) ?></th>
-				<td><input class="datepicker" type="text" name="jobman-displayenddate" value="<?php echo ( array_key_exists( 'displayenddate', $jobdata ) )?( $jobdata['displayenddate'] ):( '' ) ?>" /></td>
-				<td><span class="description"><?php _e( 'The date this job should stop being displayed on the site. To display indefinitely, leave blank.', 'jobman' ) ?></span></td>
+				<td>
+					<input class="datepicker" type="text" name="jobman-displayenddate" 
+						value="<?php echo ( array_key_exists( 'displayenddate', $jobdata ) )?( $jobdata['displayenddate'] ):( '' ) ?>" />
+				</td>
+				<td>
+					<span class="description">
+						<?php _e( 'The date this job should stop being displayed on the site. To display indefinitely, 
+						leave blank.', 'jobman' ) ?>
+					</span>
+				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php _e( 'Application Email', 'jobman' ) ?></th>
-				<td><input class="regular-text" type="text" name="jobman-email" value="<?php echo ( array_key_exists( 'email', $jobdata ) )?( $jobdata['email'] ):( '' ) ?>" /></td>
-				<td><span class="description"><?php _e( 'The email address to notify when an application is submitted for this job. For default behaviour (category email or global email), leave blank.', 'jobman' ) ?></span></td>
+				<th scope="row">
+					<?php _e( 'Application Email', 'jobman' ) ?>
+				</th>
+				<td>
+					<input class="regular-text" type="text" name="jobman-email" 
+						value="<?php echo ( array_key_exists( 'email', $jobdata ) )?( $jobdata['email'] ):( '' ) ?>" />
+				</td>
+				<td>
+					<span class="description">
+						<?php _e( 'The email address to notify when an application is submitted for this job. For 
+						default behaviour (category email or global email), leave blank.', 'jobman' ) ?>
+					</span>
+				</td>
 			</tr>
 <?php
 	$checked = '';
@@ -557,12 +599,16 @@ function jobman_edit_job( $jobid ) {
 				<td>
 					<!-- Hidden control to send a '0' when unchecked -->
 					<input type="hidden" name="jobman-highlighted" value="0">				
-					<input type="checkbox" name="jobman-highlighted" value="1" <?php echo $checked ?>/>
+					<input type="checkbox" name="jobman-highlighted" value="1" <?= $checked ?>/>
 				</td>
-				<td><span class="description"><?php _e( 'Mark this job as highlighted? For the behaviour of highlighted jobs, see the Display Settings admin page.', 'jobman' ) ?></span></td>
+				<td>
+					<span class="description"><?php _e( 'Mark this job as highlighted? For the behaviour of highlighted
+					 jobs, see the Display Settings admin page.', 'jobman' ) ?>
+					</span>
+				</td>
 			</tr>
 		</table>
-		<p class="submit"><input type="submit" name="submit"  class="button-primary" value="<?php echo $submit ?>" /></p>
+		<p class="submit"><input type="submit" name="submit"  class="button-primary" value="<?= $submit ?>" /></p>
 	</div>
 	</form>
 <?php

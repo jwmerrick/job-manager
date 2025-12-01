@@ -20,20 +20,9 @@ function jobman_admin_mass_edit_jobs() {
                 if( array_key_exists( 'jobman-delete-confirmed', $_REQUEST ) ) {
                     check_admin_referer( 'jobman-mass-delete-jobs' );
                     jobman_job_delete();
-			    } else {
+			    } else {											
                     check_admin_referer( 'jobman-mass-edit-jobs' );
-                    $redirect_url = add_query_arg(
-                        'jobman-mass-edit-jobs', 'delete',
-                        admin_url('admin.php?page=jobman-list-jobs'));
-                    $redirect_url = add_query_arg(
-                        '_wpnonce', $_REQUEST['_wpnonce'],
-                        $redirect_url);
-                    wp_safe_redirect( $redirect_url );
-                    $redirect_url = add_query_arg(
-                        'job', $_REQUEST['job'],
-                        $redirect_url);
-                    wp_safe_redirect( $redirect_url );
-                    return;
+					jobman_massedit_delconf_redirect();
 			    }
                 break;
             case 'archive':
@@ -51,8 +40,6 @@ function jobman_admin_mass_edit_jobs() {
 
     jobman_massedit_redirect();                                      // Return when done processing.
 }
-
-
 
 function jobman_job_delete() {
 	$options = get_option( 'jobman_options' );
@@ -124,6 +111,22 @@ function jobman_job_unarchive() {
 
 		update_post_meta( $job, 'displayenddate', '' );
 	}
+}
+
+// Redirect helper: delete confirm if delete requested but not yet confirmed
+function jobman_massedit_delconf_redirect() {
+	$redirect_url = add_query_arg(
+		'jobman-mass-edit-jobs', 'delete',
+		admin_url('admin.php?page=jobman-list-jobs'));
+	$redirect_url = add_query_arg(
+		'_wpnonce', $_REQUEST['_wpnonce'],
+		$redirect_url);
+	wp_safe_redirect( $redirect_url );
+	$redirect_url = add_query_arg(
+		'job', $_REQUEST['job'],
+		$redirect_url);
+	wp_safe_redirect( $redirect_url );
+	exit;
 }
 
 // Redirect helper: back to job list after a mass edit

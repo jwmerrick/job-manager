@@ -1,5 +1,5 @@
 === Job Manager ===
-Contributors: SMB-dev, gobblelogic
+Contributors: SMB-dev, gobblelogic, jmdevnet
 Donate link: http://www.wp-jobmanager.com/donate/
 Plugin URI: http://www.wp-jobmanager.com
 License: GPLv3
