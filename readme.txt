@@ -1,7 +1,7 @@
 === Job Manager ===
 Contributors: SMB-dev, gobblelogic, jmdevnet
 Donate link: http://www.wp-jobmanager.com/donate/
-Plugin URI: http://www.wp-jobmanager.com
+Plugin URI: https://wordpress.org/plugins/job-manager/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: application, applicant tracking, ats, board, candidate, candidates, career, company, current opportunities, direct hire, employee, employer, employees, employment, freelance,
@@ -58,7 +58,7 @@ the interview process, Job Manager supports all the features you need to manage 
 
 = Links =
 
-* [Plugin Homepage](http://www.wp-jobmanager.com/)
+* [Plugin Homepage](https://wordpress.org/plugins/job-manager/)
 * [Support Forum](http://wordpress.org/tags/job-manager?forum_id=10)
 * [Report Bugs and Request Enhancments](https://bitbucket.org/jobmanager_hp/job-manager/issues)
 * [Knowledge Base - Documentation](http://www.wp-jobmanager/documentation)

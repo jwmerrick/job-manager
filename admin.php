@@ -46,11 +46,11 @@ function jobman_admin_setup() {
 }
 
 function jobman_plugin_row_meta( $links, $file ) {
-	if( JOBMAN_BASENAME == $file && ! get_option( 'smb_consulting' ) ) {
-		$links[] = '<a href="http://www.wp-jobmanager.com/">' . __( 'Visit plugin site', 'jobman' ) . '</a>';
-	}
+// 	if( JOBMAN_BASENAME == $file && ! get_option( 'smb_consulting' ) ) {
+// 		$links[] = '<a href="https://wordpress.org/plugins/job-manager/">' . __( 'Visit plugin site', 'jobman' ) . '</a>';
+// 	}
 
-	return $links;
+ 	return $links;
 }
 
 function jobman_admin_print_styles() {

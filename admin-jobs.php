@@ -288,14 +288,6 @@ function jobman_edit_job( $jobid ) {
 		// Job form has been submitted. Update the database.
 		error_log( 'Job Manager: Call to admin.php with jobmansubmit set.  Please update to use admin-post.php.');
 		check_admin_referer( 'jobman-edit-job-$jobid' );
-		$error = false; //jobman_updatedb();
-
-		if( $error )
-			return $error;
-		else if ( 'new' == $jobid )
-			return 2;
-		else
-			return 3;
 	}
 
 	if( 'new' == $jobid ) {
@@ -340,16 +332,11 @@ function jobman_edit_job( $jobid ) {
 			wp_tiny_mce( false, array( 'editor_selector' => 'jobman-editor' ) );
 	}
 ?>
-	<form action="<?php 
-	//	echo admin_url('admin.php?page=jobman-list-jobs') 
-		echo admin_url('admin-post.php');
-	?>" enctype="multipart/form-data" method="post">
+	<form action="<?php echo admin_url('admin-post.php'); ?>" enctype="multipart/form-data" method="post">
 	<input type="hidden" name="action" value="job_edit"> 
 	<input type="hidden" name="jobmansubmit" value="1" />
 	<input type="hidden" name="jobman-jobid" value="<?= $jobid ?>" />
-<?php
-	wp_nonce_field( "jobman-edit-job-$jobid");
-?>
+	<?php wp_nonce_field( "jobman-edit-job-$jobid"); ?>
 	<div class="wrap">
 		<h2><?= $title ?></h2>
 		<table id="jobman-job-edit" class="form-table">

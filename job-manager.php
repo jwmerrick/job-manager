@@ -1,7 +1,7 @@
 <?php //encoding: utf-8
 /*
 Plugin Name: Job Manager
-Plugin URI: http://wp-jobmanager.com/
+Plugin URI: https://wordpress.org/plugins/job-manager/
 Description: A job listing and job application management plugin for WordPress.
 Version: 0.8.3
 Author: Tom Townsend, Modified by Jason Merrick
