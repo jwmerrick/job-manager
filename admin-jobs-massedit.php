@@ -132,8 +132,8 @@ function jobman_massedit_delconf_redirect() {
 // Redirect helper: back to job list after a mass edit
 function jobman_massedit_redirect() {
     $redirect_url = admin_url('admin.php?page=jobman-list-jobs');
-    wp_safe_redirect( $redirect_url );
+	$redirect_url = add_query_arg('_wp_http_referer', admin_url('admin-post.php'), $redirect_url);
+	$redirect_url = add_query_arg('_wpnonce', $_REQUEST['_wpnonce'], $redirect_url);
+	wp_safe_redirect( $redirect_url );
     exit;
 }
-
-?>

@@ -13,27 +13,31 @@ function jobman_admin_job_edit() {
     error_log ('job edit handler triggered...');
     error_log ( var_export($_REQUEST, true) );
 
+    $return_code = 1;                                               // Default
 	if( array_key_exists( 'jobmansubmit', $_REQUEST ) ) {
 	// Job form has been submitted. Update the database.
         $jobid = $_REQUEST['jobman-jobid'];
 	    check_admin_referer( 'jobman-edit-job-' . $jobid );         // Confirm we're getting a valid call
         error_log ('Editing job #' . $jobid);
         if( $jobid == 'new' ){
-            jobman_updatedb_add();                                  // Add a new job
+            $return_code = jobman_updatedb_add();                   // Add a new job
         } else {
-            jobman_updatedb_edit();                                 // Edit an existing job
+            $return_code = jobman_updatedb_edit();                  // Edit an existing job
         }
 	}
 
-    jobman_jobedit_redirect();                                      // Return when done processing.
+    jobman_jobedit_redirect( $return_code );                        // Return when done processing.
 }
 
 // Code from jobman_updatedb responsible for addding a new job
 function jobman_updatedb_add(){
+    $return_code = 1;
     if( 'new' == $_REQUEST['jobman-jobid'] ) {
         $job_data_raw = jobman_get_req_fields();
         $job_data_san = jobman_sanitize_req_fields($job_data_raw);
         $id = wp_insert_post( jobman_build_new_post() );
+        if ($id != 0)                                              // Post created okay
+            $return_code = 2;
 
         $options = get_option( 'jobman_options' );
 
@@ -43,6 +47,7 @@ function jobman_updatedb_add(){
         if( $options['plugins']['gxs'] )
             do_action( 'sm_rebuild' );
     }
+    return $return_code;
 }
 
 // Code from jobman_updatedb responsible for editing an existing job
@@ -53,6 +58,7 @@ function jobman_updatedb_add(){
 // jobman-highlighted, jobman-categories
 function jobman_updatedb_edit(){
     global $current_user;
+    $return_code = 1;
     $data = get_post( $_REQUEST['jobman-jobid'] );
 
     // User is unable to edit this job
@@ -67,14 +73,17 @@ function jobman_updatedb_edit(){
     $options = get_option( 'jobman_options' );
 
     // Process the sanitized submitted data
-    jobman_updatedb_process( $id, $job_data_san );
+    $return_code = jobman_updatedb_process( $id, $job_data_san );
 
 	if( $options['plugins']['gxs'] )
 		do_action( 'sm_rebuild' );
+
+    return $return_code;
 }
 
 // Update fields for existing job... common to both editing and new
 function jobman_updatedb_process( $jobid, $job_data_san ){
+    $return_code = 1;
     $options = get_option( 'jobman_options' );
     $page['ID'] = $jobid;
     // Process the sanitized submitted data
@@ -137,6 +146,8 @@ function jobman_updatedb_process( $jobid, $job_data_san ){
                 }
         }
     }
+    $return_code = 3;
+    return $return_code;
 }
 
 // Return an associative array with the job fields included in the request
@@ -327,10 +338,11 @@ function jobman_job_field_upload ( $job_id, $field_index ){
 }
 
 // Redirect helper: back to job list after a job edit
-function jobman_jobedit_redirect() {
+function jobman_jobedit_redirect( $return_code ) {
     $redirect_url = admin_url('admin.php?page=jobman-list-jobs');
+	$redirect_url = add_query_arg('_wp_http_referer', admin_url('admin-post.php'), $redirect_url);
+	$redirect_url = add_query_arg('_wpnonce', $_REQUEST['_wpnonce'], $redirect_url);
+	$redirect_url = add_query_arg('return-code', $return_code, $redirect_url);
     wp_safe_redirect( $redirect_url );
     exit;
 }
-
-?>

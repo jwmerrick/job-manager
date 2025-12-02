@@ -3,7 +3,8 @@ function jobman_list_jobs() {
 	$options = get_option( 'jobman_options' );
 	$fields = $options['job_fields'];
 
-	$displayed = 1;
+	$return_code = 1;													// Key to banner-message
+	error_log ( var_export($_REQUEST, true) );
 
 	// Figure out which page to display and display it.
 	// Actual request handling in admin-job-edit.php and admin-jobs-massedit.php
@@ -16,9 +17,44 @@ function jobman_list_jobs() {
 			}
 		}
 	} elseif ( isset( $_REQUEST['jobman-jobid'] ) ) {
-		$displayed = jobman_edit_job( $_REQUEST['jobman-jobid'] );
-		if( 1 == $displayed )
+		$return_code = jobman_edit_job( $_REQUEST['jobman-jobid'] );
+		if( 1 == $return_code )
 			return;
+	}
+
+	// Handle returned values from admin-job-edit.php or admin-jobs-massedit.php
+	$referrer_url = wp_get_referer();
+	$referrer_url_naked = remove_query_arg( null, $referrer_url );
+	if ($referrer_url_naked == admin_url('admin-post.php')){
+		if( array_key_exists('return-code', $_REQUEST ) ){
+			$return_code = (int)$_REQUEST['return-code'];
+			if( ($return_code >= 0) && ($return_code <= 4) ){
+				$return_code = $return_code;
+				error_log ('jobman_list_jobs(): Got return code ' . $return_code);
+			}
+		}
+	}
+
+	// Decide which alert box to display
+	// Note these should be updated to use notice-error, notice-success and notice-info
+	// https://developer.wordpress.org/reference/hooks/admin_notices/
+	switch ($return_code) {
+		case 0:
+			$popup_class = 'error';
+			$popup_message = __( 'There is no job associated with that Job ID', 'jobman' );
+			break;
+		case 2:
+			$popup_class = 'updated';
+			$popup_message = __( 'New job created', 'jobman' ) ;
+			break;
+		case 3:
+			$popup_class = 'updated';
+			$popup_message = __( 'Job updated', 'jobman' );
+			break;
+		case 4:
+			$popup_class = 'error';
+			$popup_message = __( 'You do not have permission to edit that Job', 'jobman' ) ;
+			break;
 	}
 
 	// If the request is not for a mass delete (which triggers the confirm dispaly)
@@ -34,21 +70,12 @@ function jobman_list_jobs() {
 				<input type="submit" name="submit" class="button-primary" value="<?php _e( 'New Job', 'jobman' ) ?>" />
 			</p>
 		</form>
-<?php
-	switch($displayed) {
-		case 0:
-			echo '<div class="error">' . __( 'There is no job associated with that Job ID', 'jobman' ) . '</div>';
-			break;
-		case 2:
-			echo '<div class="updated">' . __( 'New job created', 'jobman' ) . '</div>';
-			break;
-		case 3:
-			echo '<div class="updated">' . __( 'Job updated', 'jobman' ) . '</div>';
-			break;
-		case 4:
-			echo '<div class="error">' . __( 'You do not have permission to edit that Job', 'jobman' ) . '</div>';
-			break;
-	}
+
+<?php if ($return_code != 1){ ?>
+	<div class="<?= $popup_class ?>">
+		<?= $popup_message ?>
+	</div>
+<?php }
 
 	$jobs = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=publish,draft,future' );
 ?>
