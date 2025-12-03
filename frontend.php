@@ -123,9 +123,6 @@ function jobman_display_jobs( $posts ) {
 	global $wp_query, $wpdb, $jobman_displaying, $jobman_finishedpage, $sitepress, $wp_rewrite;
 
 	error_log('jobman_display_jobs called');
-	error_log(var_export($jobman_displaying, true));
-	error_log(var_export($jobman_finishedpage, true));
-	error_log(var_export($wp_query->query_vars, true));
 
 	if( $jobman_finishedpage || $jobman_displaying )
 		return $posts;
@@ -341,24 +338,16 @@ function jobman_display_template() {
 	$options = get_option( 'jobman_options' );
 
 	error_log ('jobman_display_template called');
-	error_log (var_export($wp_query->query_vars, true));
-	error_log (var_export($jobman_displaying, true));
 
-//	if( ! $jobman_displaying )
-//		return;
+	if( ! $jobman_displaying )
+		return;
 
 	$root = get_page( $options['main_page'] );
 	$id = $root->ID;
 	$template = get_post_meta( $id, '_wp_page_template', true );		// I don't think this is getting populated any more
 	
-	error_log (var_export($template, true) );
-
 	$pagename = get_query_var( 'pagename' );
 	$category = get_query_var( 'jcat' );
-
-	error_log (var_export($template, true));
-	error_log (var_export($pagename, true));
-	error_log (var_export($category, true ));
 
 	$post_id = get_query_var( 'page_id' );
 

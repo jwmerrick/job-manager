@@ -89,9 +89,12 @@ function jobman_shortcode( $atts, $content, $tag ) {
 		case 'job_row_number':
 			return $jobman_shortcode_row_number;
 		case 'job_id':
-			return $jobman_shortcode_job->ID;
+			if( !is_null($jobman_shortcode_job) )
+				return $jobman_shortcode_job->ID;
 		case 'job_highlighted':
-			$highlighted = get_post_meta( $jobman_shortcode_job->ID, 'highlighted', true );
+			$highlighted = false;
+			if( !is_null($jobman_shortcode_job) )
+				$highlighted = get_post_meta( $jobman_shortcode_job->ID, 'highlighted', true );
 			if( $highlighted )
 				return 'highlighted';
 			else
