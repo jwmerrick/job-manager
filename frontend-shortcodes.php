@@ -68,6 +68,8 @@ function jobman_shortcode( $atts, $content, $tag ) {
 	global $jobman_shortcode_jobs, $jobman_shortcode_all_jobs, $jobman_shortcode_category, $jobman_shortcode_job, $jobman_shortcode_row_number, $jobman_shortcode_field_id, $jobman_shortcode_field, $wp_query;
 	$options = get_option( 'jobman_options' );
 
+	error_log("jobman_shortcode called with tag: $tag");
+
 	$return = '';
 	switch ( $tag ) {
 		case 'job_loop':

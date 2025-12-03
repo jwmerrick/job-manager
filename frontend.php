@@ -118,8 +118,14 @@ function jobman_page_link( $link, $page = NULL ) {
 	return get_page_link( $page->ID );
 }
 
+// Hooked in hooks.php as filter for 'the posts'
 function jobman_display_jobs( $posts ) {
 	global $wp_query, $wpdb, $jobman_displaying, $jobman_finishedpage, $sitepress, $wp_rewrite;
+
+	error_log('jobman_display_jobs called');
+	error_log(var_export($jobman_displaying, true));
+	error_log(var_export($jobman_finishedpage, true));
+	error_log(var_export($wp_query->query_vars, true));
 
 	if( $jobman_finishedpage || $jobman_displaying )
 		return $posts;
@@ -152,7 +158,7 @@ function jobman_display_jobs( $posts ) {
 	if( ! array_key_exists( 'jcat', $wp_query->query_vars ) ) {
 		if( isset( $wp_query->query_vars['jobman_root_id'] ) )
 			$post = get_post( $wp_query->query_vars['jobman_root_id'] );
-		else if( isset( $wp_query->query_vars['page_id'] ) )
+		else if( isset( $wp_query->query_vars['page_id'] ) && ($wp_query->query_vars['page_id'] != 0))
 			$post = get_post( $wp_query->query_vars['page_id'] );
 
 		if( $post == NULL || ( ! isset( $wp_query->query_vars['jobman_page'] ) && $post->ID != $options['main_page'] && ! in_array( $post->post_type, array( 'jobman_job', 'jobman_app_form', 'jobman_register' ) ) ) )
@@ -302,6 +308,8 @@ function jobman_display_jobs( $posts ) {
 function jobman_display_init() {
 	$options = get_option( 'jobman_options' );
 
+	error_log ('jobman_display_init called');
+
 	if( defined( 'WP_ADMIN' ) && WP_ADMIN )
 		return;
 
@@ -328,17 +336,29 @@ function jobman_display_init() {
 }
 
 function jobman_display_template() {
+
 	global $wp_query, $jobman_displaying;
 	$options = get_option( 'jobman_options' );
 
-	if( ! $jobman_displaying )
-		return;
+	error_log ('jobman_display_template called');
+	error_log (var_export($wp_query->query_vars, true));
+	error_log (var_export($jobman_displaying, true));
+
+//	if( ! $jobman_displaying )
+//		return;
 
 	$root = get_page( $options['main_page'] );
 	$id = $root->ID;
-	$template = get_post_meta( $id, '_wp_page_template', true );
+	$template = get_post_meta( $id, '_wp_page_template', true );		// I don't think this is getting populated any more
+	
+	error_log (var_export($template, true) );
+
 	$pagename = get_query_var( 'pagename' );
 	$category = get_query_var( 'jcat' );
+
+	error_log (var_export($template, true));
+	error_log (var_export($pagename, true));
+	error_log (var_export($category, true ));
 
 	$post_id = get_query_var( 'page_id' );
 
