@@ -61,9 +61,15 @@ function jobman_flush_rewrite_rules() {
 		}
 	}
 
+	// URL Rewrite Rules
+	// Rule 1: Match /jobs/ or /jobs/page/1 etc -> index.php?jobman_root_id=6?page=1
+	// Rule 2: /jobs/apply/123 → index.php?jobman_root_id=6&jobman_page=apply&jobman_data=123
+	// Rule 3: /jobs/register/123 -> Appears maybe broken.  What is /register/ for?
+	// Rule 4: /jobs/feed/ -> index.php?feed=jobman			What is /feed/ for?
+	// Rule 5: /jobs/<slug>/ -> index.php?jobman_data=<slug>?page=123 	Maybe broken?
 	if( empty( $lang ) ) {
 		$new_rules = array(
-							"$url/?([page]*/(\d+)/?)?$" => "index.php?jobman_root_id=$root->ID" .
+							"$url/?((page)*/(\d+)/?)?$" => "index.php?jobman_root_id=$root->ID" .
 							'&page=$matches[2]',
 							"$url/apply(/([^/]+))?/?$" => "index.php?jobman_root_id=$root->ID" .
 							'&jobman_page=apply&jobman_data=$matches[2]',
@@ -76,7 +82,7 @@ function jobman_flush_rewrite_rules() {
 	}
 	else {
 		$new_rules = array(
-							"($lang)?$url/?([page]*/(\d+)/?)?$" => "index.php?jobman_root_id=$root->ID" .
+							"($lang)?$url/?((page)*/(\d+)/?)?$" => "index.php?jobman_root_id=$root->ID" .
 							'&lang=$matches[1]' .
 							'&page=$matches[3]',
 							"($lang)?$url/apply(/([^/]+))?/?$" => "index.php?jobman_root_id=$root->ID" .
@@ -118,7 +124,11 @@ function jobman_page_link( $link, $page = NULL ) {
 	return get_page_link( $page->ID );
 }
 
+<<<<<<< Updated upstream
 // Hooked in hooks.php as filter for 'the posts'
+=======
+// filter attached to 'the_posts' in hooks.php
+>>>>>>> Stashed changes
 function jobman_display_jobs( $posts ) {
 	global $wp_query, $wpdb, $jobman_displaying, $jobman_finishedpage, $sitepress, $wp_rewrite;
 
