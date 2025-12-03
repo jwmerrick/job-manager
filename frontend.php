@@ -124,11 +124,7 @@ function jobman_page_link( $link, $page = NULL ) {
 	return get_page_link( $page->ID );
 }
 
-<<<<<<< Updated upstream
-// Hooked in hooks.php as filter for 'the posts'
-=======
 // filter attached to 'the_posts' in hooks.php
->>>>>>> Stashed changes
 function jobman_display_jobs( $posts ) {
 	global $wp_query, $wpdb, $jobman_displaying, $jobman_finishedpage, $sitepress, $wp_rewrite;
 
