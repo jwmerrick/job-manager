@@ -143,6 +143,9 @@ function jobman_display_jobs( $posts ) {
 
 	$displaycat = false;
 
+	// If jobman_data points to a category, and jobman_page is absent, add the jcat parameter.
+	// Otherwise, query the jobs, and set the first page in the page_id var.
+	// If no jobs are found, then do nothing (return).
 	if( array_key_exists( 'jobman_data', $wp_query->query_vars ) && ! array_key_exists( 'jobman_page', $wp_query->query_vars ) ) {
 		if( term_exists( $wp_query->query_vars['jobman_data'], 'jobman_category' ) ) {
 			$wp_query->query_vars['jcat'] = $wp_query->query_vars['jobman_data'];
@@ -158,13 +161,23 @@ function jobman_display_jobs( $posts ) {
 		}
 	}
 
+	// If we got this far, and it's not a category request, see if it's a main page request and get the post on that
+	// If it was a single job request (see above), get the post for the job as starting point
+	// Jump out if (1) We haven't found as post... not a root request or a single job request
+	//			or (2) The jobman_page query var hasn't been set and the post ID is not the main page and it's not a jobman page type
 	if( ! array_key_exists( 'jcat', $wp_query->query_vars ) ) {
 		if( isset( $wp_query->query_vars['jobman_root_id'] ) )
 			$post = get_post( $wp_query->query_vars['jobman_root_id'] );
 		else if( isset( $wp_query->query_vars['page_id'] ) && ($wp_query->query_vars['page_id'] != 0))
 			$post = get_post( $wp_query->query_vars['page_id'] );
 
-		if( $post == NULL || ( ! isset( $wp_query->query_vars['jobman_page'] ) && $post->ID != $options['main_page'] && ! in_array( $post->post_type, array( 'jobman_job', 'jobman_app_form', 'jobman_register' ) ) ) )
+		if( $post == NULL || 
+			( 
+				! isset( $wp_query->query_vars['jobman_page'] ) 
+				&& $post->ID != $options['main_page'] 
+				&& ! in_array( $post->post_type, array( 'jobman_job', 'jobman_app_form', 'jobman_register' ) ) 
+			) 
+		)
 			return $posts;
 	}
 
