@@ -143,9 +143,10 @@ function jobman_display_jobs( $posts ) {
 
 	$displaycat = false;
 
-	// If jobman_data points to a category, and jobman_page is absent, add the jcat parameter.
-	// Otherwise, query the jobs, and set the first page in the page_id var.
-	// If no jobs are found, then do nothing (return).
+	// This is dealing with handling jobmamn_data = category vs jobman_data = individual job (Case 5, above)
+	// If it's the former, then it sets the jcat query variable
+	// Otherwise, it trys to find a job with that name.  If one exists, it sets the id in the page_id query variable
+	// If neither is the case, then it returns.
 	if( array_key_exists( 'jobman_data', $wp_query->query_vars ) && ! array_key_exists( 'jobman_page', $wp_query->query_vars ) ) {
 		if( term_exists( $wp_query->query_vars['jobman_data'], 'jobman_category' ) ) {
 			$wp_query->query_vars['jcat'] = $wp_query->query_vars['jobman_data'];
@@ -184,6 +185,7 @@ function jobman_display_jobs( $posts ) {
 	// We're going to be displaying a Job Manager page.
 	$jobman_displaying = true;
 	$wp_query->is_home = false;
+	error_log ("----- JOB MANAGER PAGE DISPLAY -----");
 	remove_filter( 'the_content', 'wpautop' );
 
 	// Hack to kill WPML on Job Manager pages. Need to add proper support later.
