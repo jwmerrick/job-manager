@@ -189,6 +189,8 @@ function jobman_sort_highlighted_jobs( $a, $b ) {
 	return 1;
 }
 
+// Creates a page to return a single job post
+// Or a message if the requested job is inactive
 function jobman_display_job( $job ) {
 	global $jobman_shortcode_job, $jobman_shortcodes, $jobman_field_shortcodes;
 	$options = get_option( 'jobman_options' );
@@ -201,35 +203,15 @@ function jobman_display_job( $job ) {
 	if( $options['user_registration'] && $options['loginform_job'] )
 		$content .= jobman_display_login();
 
-	if( NULL != $job ) {
-		$jobmeta = get_post_custom( $job->ID );
-		$jobdata = array();
-		foreach( $jobmeta as $key => $value ) {
-			if( is_array( $value ) )
-				$jobdata[$key] = $value[0];
-			else
-				$jobdata[$key] = $value;
-		}
-	}
-
 	if( !jobman_job_is_active($job->ID) ) {
 		return jobman_page_inactive();
 	}
 
 	$template = $options['templates']['job'];
-
-	jobman_add_shortcodes( $jobman_shortcodes );
-	jobman_add_field_shortcodes( $jobman_field_shortcodes );
-
 	$jobman_shortcode_job = $job;
 	$content .= do_shortcode( $template );
-
-	jobman_remove_shortcodes( array_merge( $jobman_shortcodes, $jobman_field_shortcodes ) );
-
 	$page = $job;
-
 	$page->post_title = $options['text']['job_title_prefix'] . $job->post_title;
-
 	$page->post_content = $content;
 
 	return array( $page );
