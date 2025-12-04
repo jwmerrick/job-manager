@@ -125,6 +125,8 @@ function jobman_page_link( $link, $page = NULL ) {
 	return get_page_link( $page->ID );
 }
 
+// Called before the main query is executed.  Based on our custom endpoints, modify
+// the query to give us the results we want.
 function jobman_display_preget ( $query ){
 
 	// to avoid altering admin screens and secondary queries (widgets, headers/footers, blocks).
@@ -181,8 +183,35 @@ function jobman_display_preget ( $query ){
 	error_log('jobman_display_preget: passing through');
 }
 
-// Figure out if it's one of our 5 Job Manager Endpoints
-// If not, just pass through
+// Called by pre-get.  Set up the query to retrieve a single jobman_job post
+function jobman_display_single ( $query ){
+	global $wpdb, $wp_query, $jobman_displaying, $jobman_finishedpage;
+	
+	$sql = "SELECT * FROM $wpdb->posts WHERE post_type='jobman_job' AND post_name=%s;";
+	$sql = $wpdb->prepare( $sql, get_query_var('jobman_data') );
+	$data = $wpdb->get_results( $sql, OBJECT );
+	if( count( $data ) > 0 ){
+		$post_id = $data[0]->ID;
+		$query->set ('post_type', 'jobman_job');
+        $query->set ('posts_per_page', 1);
+        $query->set ('post_status', 'any');   // include drafts/private if needed
+        $query->set ('ignore_sticky_posts', true);
+		$query->set ('jobman_data', $post_id);
+		$query->set ('post__in', array($post_id));
+		foreach ([
+			'p', 'page_id', 'name', 'pagename', 'attachment', 'attachment_id', 's',
+			'cat', 'category_name', 'author'
+		] as $var) {
+			$query->set($var, '');
+		}
+		$query->set('tax_query', []);
+		$query->set('meta_query', []);
+		$query->set('date_query', []);
+    }
+}
+
+// Modifies the results of the query for display to the user
+// As with the query setup, there's a handler for each endpoint
 function jobman_display_filter ( $posts, $query ){
 
 	// jobman_data will be populated for applies, individual job, or categories
@@ -233,34 +262,8 @@ function jobman_display_filter ( $posts, $query ){
 	return $posts;
 }
 
-// Called by pre-get.  Set the page_id in the query.
-function jobman_display_single ( $query ){
-	global $wpdb, $wp_query, $jobman_displaying, $jobman_finishedpage;
-	
-	$sql = "SELECT * FROM $wpdb->posts WHERE post_type='jobman_job' AND post_name=%s;";
-	$sql = $wpdb->prepare( $sql, get_query_var('jobman_data') );
-	$data = $wpdb->get_results( $sql, OBJECT );
-	if( count( $data ) > 0 ){
-		$post_id = $data[0]->ID;
-		$query->set ('post_type', 'jobman_job');
-        $query->set ('posts_per_page', 1);
-        $query->set ('post_status', 'any');   // include drafts/private if needed
-        $query->set ('ignore_sticky_posts', true);
-		$query->set ('jobman_data', $post_id);
-		$query->set ('post__in', array($post_id));
-		foreach ([
-			'p', 'page_id', 'name', 'pagename', 'attachment', 'attachment_id', 's',
-			'cat', 'category_name', 'author'
-		] as $var) {
-			$query->set($var, '');
-		}
-		$query->set('tax_query', []);
-		$query->set('meta_query', []);
-		$query->set('date_query', []);
-    }
-}
-
 // (was) Filter attached to 'the_posts' in hooks.php
+// Refactoring above
 function jobman_display_jobs( $posts ) {
 	global $wp_query, $wpdb, $jobman_displaying, $jobman_finishedpage, $sitepress, $wp_rewrite;
 
