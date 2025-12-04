@@ -217,7 +217,6 @@ Print Icon by [Piotr Kwiatkowski](http://www.piotrkwiatkowski.co.uk), under a [C
 * ADDED: Support for [Sidekick] Walkthroughs (https://wordpress.org/plugins/sidekick)
 * Tested for WordPress 4.2.3
 
-
 = 0.7.23 =
 * FIXED: Star filter fix (Filter Applications by Rating)
 * Security check

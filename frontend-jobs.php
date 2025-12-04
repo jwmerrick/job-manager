@@ -137,7 +137,7 @@ function jobman_display_jobs_list( $cat ) {
 		jobman_add_field_shortcodes( $jobman_field_shortcodes );
 
 		$jobman_shortcode_jobs = $jobs;
-		$content .= do_shortcode( $template );
+		$content .= do_shortcode( $template );						
 
 		jobman_remove_shortcodes( array_merge( $jobman_shortcodes, $jobman_field_shortcodes ) );
 

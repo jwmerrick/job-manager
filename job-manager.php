@@ -137,7 +137,6 @@ require_once( JOBMAN_DIR . '/plugins.php' );
 
 // Jobman frontend
 require_once( JOBMAN_DIR . '/frontend.php' );
-require_once( JOBMAN_DIR . '/frontend-v2.php' );
 
 // Widgets
 require_once( JOBMAN_DIR . '/widgets.php' );

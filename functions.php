@@ -91,15 +91,14 @@ function jobman_page_taxonomy_setup() {
 	register_post_type( 'jobman_interview', array( 'exclude_from_search' => true ) );
 
 	// Create our new taxonomy thing
-	$options = get_option( 'jobman_options' );
-	
-	$root = get_page( $options['main_page'] );
-	$url = get_page_uri( $root->ID );
+	$url = get_page_uri( jobman_get_root() );
 	
 	if( substr( $url, 0, 1 ) != '/' )
 		$url = "/$url";
 	
-	register_taxonomy( 'jobman_category', array( 'jobman_job', 'jobman_app' ), array( 'hierarchical' => false, 'label' => __( 'Category', 'series' ), 'query_var' => 'jcat', 'rewrite' => array( 'slug' => $url ) ) );
+	register_taxonomy( 'jobman_category', 
+		array( 'jobman_job', 'jobman_app' ), 
+		array( 'hierarchical' => false, 'label' => __( 'Category', 'series' ), 'query_var' => 'jcat', 'rewrite' => array( 'slug' => $url ) ) );
 }
 
 function jobman_page_hierarchical_setup( $types ) {
@@ -158,6 +157,12 @@ if( ! function_exists( 'array_insert' ) ) {
 	   
 		return $array;
 	}
+}
+
+// Retrieves and returns the ID for the root Job Manager landing page
+function jobman_get_root(){
+	$options = get_option( 'jobman_options' );
+	return $options['main_page'];
 }
 
 ?>

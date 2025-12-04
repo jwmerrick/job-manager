@@ -15,8 +15,8 @@ global $jobman_displaying, $jobman_finishedpage, $jobman_geoloc;
 $jobman_finishedpage = $jobman_displaying = $jobman_geoloc = false;
 
 function jobman_queryvars( $qvars ) {
-	$qvars[] = 'j';
-	$qvars[] = 'c';
+	$qvars[] = 'j';													// I think this can go away
+	$qvars[] = 'c';													// I think this can go away
 	$qvars[] = 'jobman_root_id';
 	$qvars[] = 'jobman_page';
 	$qvars[] = 'jobman_data';
@@ -25,6 +25,7 @@ function jobman_queryvars( $qvars ) {
 	$qvars[] = 'jobman_password2';
 	$qvars[] = 'jobman_email';
 	$qvars[] = 'jobman_register';
+	$qvars[] = 'jobman_cat';
 	return $qvars;
 }
 
@@ -42,7 +43,7 @@ function jobman_flush_rewrite_rules() {
 
 	$options = get_option( 'jobman_options' );
 
-	$root = get_page( $options['main_page'] );
+	$root = get_page( jobman_get_root() );
 	$url = get_page_uri( $root->ID );
 
 	if( ! $url )
@@ -66,7 +67,7 @@ function jobman_flush_rewrite_rules() {
 	// Rule 2: /jobs/apply/123 → index.php?jobman_root_id=6&jobman_page=apply&jobman_data=123
 	// Rule 3: /jobs/register/123 -> Appears maybe broken.  What is /register/ for?
 	// Rule 4: /jobs/feed/ -> index.php?feed=jobman			What is /feed/ for?
-	// Rule 5: /jobs/<slug>/ -> index.php?jobman_data=<slug>?page=123 	Maybe broken?
+	// Rule 5: /jobs/<slug>/ -> index.php?jobman_data=<slug>?page=123 (Individual Job Page)
 	if( empty( $lang ) ) {
 		$new_rules = array(
 							"$url/?((page)*/(\d+)/?)?$" => "index.php?jobman_root_id=$root->ID" .
@@ -77,7 +78,7 @@ function jobman_flush_rewrite_rules() {
 							'&jobman_page=register&jobman_data=$matches[2]',
 							"$url/feed/?$" => "index.php?feed=jobman",
 							"$url/([^/]+)/?(page/(\d+)/?)?$" => 'index.php?jobman_data=$matches[1]'.
-							'&page=$matches[3]',
+							'&page=$matches[3]&jcat=',
 					);
 	}
 	else {
@@ -92,8 +93,8 @@ function jobman_flush_rewrite_rules() {
 							'&lang=$matches[1]' .
 							'&jobman_page=register&jobman_data=$matches[3]',
 							"($lang)?$url/feed/?$" => 'index.php?feed=jobman&lang=$matches[1]',
-							"($lang)?$url/([^/]+)/?(page/(\d+)/?)?$" => 'index.php?jobman_data=$matches[1]' .
-							'&lang=$matches[2]' .
+							"($lang)?$url/([^/]+)/?(page/(\d+)/?)?$" => 'index.php?jobman_data=$matches[2]' .
+							'&lang=$matches[1]' .
 							'&page=$matches[4]',
 					);
 	}
@@ -124,7 +125,74 @@ function jobman_page_link( $link, $page = NULL ) {
 	return get_page_link( $page->ID );
 }
 
-// filter attached to 'the_posts' in hooks.php
+
+// Figure out if it's one of our 5 Job Manager Endpoints
+// If not, just pass through
+function jobman_display_filter ( $posts, $query ){
+
+	// jobman_data will be populated for applies, individual job, or categories
+	// we need to figure out which we're dealing with if any
+	// for applies, we'll have jobman_page = apply and jobman_data will be the job id
+	// so jobman_data will either be a category slug or a job slug
+	$qv_data = sanitize_title ( get_query_var('jobman_data') );
+	$qv_page = sanitize_title ( get_query_var('jobman_page') );
+	$qv_root = get_query_var('jobman_root_id');
+
+	// Figure out if it's a category url.  If so, populates jcat with the slug
+	// This becomes the endpoint /jobs/<slug>/ for a job category
+	if ( $qv_data ){
+		$term = get_term_by( 'slug', $qv_data, 'jobman_category' );	// returns false if not a category, a WP_Term object otherwise
+		if ( $term ) {
+			error_log('jobman_display_filter: category requested: ' . $qv_data);
+			$query->set('jcat', $qv_data);
+			return jobman_display_jobs ( $posts );
+		}
+	}
+
+	// Endpoint /jobs/<slug>/ detail page for individual job
+	if ( $qv_data ) {											// If not blank and not a category, then it's a job
+		error_log('jobman_display_filter: individual job page requested ' . $qv_page);
+		return jobman_display_single ( $posts );
+	}
+
+	// Endpoint /jobs/apply/ application, should include the job id we're applying for
+	if ( $qv_page == 'apply') {
+		error_log('jobman_display_filter: job application requested');
+		return jobman_display_jobs ( $posts );
+	}
+
+	// Endpoint /jobs/ job list (if category not included)
+	if ( $qv_root == jobman_get_root() ) {
+		error_log('jobman_display_filter: job list requested');
+		return jobman_display_jobs ( $posts );
+	}
+
+	// Endpoint /jobs/register/ user registration
+
+	// Endpoint /jobs/feed/ RSS feed of jobs handled by other filters
+
+	// Endpoint /jobs/<slug>/ job list by category
+
+	// Otherwise, fall-through
+	error_log('jobman_display_filter: passing through');
+	return $posts;
+}
+
+function jobman_display_single ( $posts ){
+	global $wpdb, $wp_query;
+
+	$sql = "SELECT * FROM $wpdb->posts WHERE post_type='jobman_job' AND post_name=%s;";
+	$sql = $wpdb->prepare( $sql, get_query_var('jobman_data') );
+	$data = $wpdb->get_results( $sql, OBJECT );
+	if( count( $data ) > 0 ){
+		$wp_query->query_vars['page_id'] = $data[0]->ID;
+		$posts = jobman_display_job( get_query_var('page_id') );
+	}
+
+	return $posts;
+}
+
+// (was) Filter attached to 'the_posts' in hooks.php
 function jobman_display_jobs( $posts ) {
 	global $wp_query, $wpdb, $jobman_displaying, $jobman_finishedpage, $sitepress, $wp_rewrite;
 
@@ -138,6 +206,7 @@ function jobman_display_jobs( $posts ) {
 		return $posts;
 
 	$options = get_option( 'jobman_options' );
+	$root = jobman_get_root();
 
 	$post = NULL;
 
@@ -158,18 +227,18 @@ function jobman_display_jobs( $posts ) {
 		}
 	}
 
-	if( ! array_key_exists( 'jcat', $wp_query->query_vars ) ) {
+	if( sanitize_title(get_query_var('jcat')) != '' ) {
 		if( isset( $wp_query->query_vars['jobman_root_id'] ) )
 			$post = get_post( $wp_query->query_vars['jobman_root_id'] );
 		else if( isset( $wp_query->query_vars['page_id'] ) && ($wp_query->query_vars['page_id'] != 0))
 			$post = get_post( $wp_query->query_vars['page_id'] );
 
-		if( $post == NULL || ( ! isset( $wp_query->query_vars['jobman_page'] ) && $post->ID != $options['main_page'] && ! in_array( $post->post_type, array( 'jobman_job', 'jobman_app_form', 'jobman_register' ) ) ) )
+		if( $post == NULL || ( ! isset( $wp_query->query_vars['jobman_page'] ) && $post->ID != $root && ! in_array( $post->post_type, array( 'jobman_job', 'jobman_app_form', 'jobman_register' ) ) ) )
 			return $posts;
 	}
 
 	// We're going to be displaying a Job Manager page.
-	$jobman_displaying = true;
+	$jobman_displaying = true;										// This is a flag so that this query only runs once, rather than for each post
 	$wp_query->is_home = false;
 	remove_filter( 'the_content', 'wpautop' );
 
@@ -206,7 +275,7 @@ function jobman_display_jobs( $posts ) {
 	else if( array_key_exists( 'c', $wp_query->query_vars ) )
 		$jobman_data = $wp_query->query_vars['c'];
 
-	if( array_key_exists( 'jcat', $wp_query->query_vars ) ) {
+	if( sanitize_title(get_query_var('jcat')) != '' ) {
 		// We're looking at a category
 		$cat = get_term_by( 'slug', $wp_query->query_vars['jcat'], 'jobman_category' );
 
@@ -261,7 +330,7 @@ function jobman_display_jobs( $posts ) {
 			else if( 'jobman_register' == $post->post_type ) {
 				// Looking for the registration form
 				if( is_user_logged_in() ) {
-					wp_redirect( get_page_link( $options['main_page'] ) );
+					wp_redirect( get_page_link( $root ) );
 					exit;
 				}
 				else {
@@ -278,7 +347,7 @@ function jobman_display_jobs( $posts ) {
 			$posts = array();
 		}
 	}
-	else if( NULL != $post && $post->ID == $options['main_page'] ) {
+	else if( NULL != $post && $post->ID == $root ) {
 		// We're looking at the main job list page
 		$posts = jobman_display_jobs_list( 'all' );
 
@@ -338,19 +407,17 @@ function jobman_display_init() {
 	wp_enqueue_style( 'jobman-display', JOBMAN_URL . '/css/display.css', false, JOBMAN_VERSION );
 }
 
+// Select the template we want to use for Job Manager jobs
 function jobman_display_template() {
 
 	global $wp_query, $jobman_displaying;
-	$options = get_option( 'jobman_options' );
 
-	error_log ('jobman_display_template called');
-
-	if( ! $jobman_displaying )
+	if( ! $jobman_displaying )										// Global var set in filter jobman_display_jobs if it's a Job Manager request
 		return;
 
-	$root = get_page( $options['main_page'] );
+	$root = get_page( jobman_get_root() );
 	$id = $root->ID;
-	$template = get_post_meta( $id, '_wp_page_template', true );		// I don't think this is getting populated any more
+	$template = get_post_meta( $id, '_wp_page_template', true );	// I don't think this is getting populated any more
 	
 	$pagename = get_query_var( 'pagename' );
 	$category = get_query_var( 'jcat' );
@@ -396,7 +463,9 @@ function jobman_display_template() {
 
 	$templates[] = "page.php";
 
+	error_log ("jobman_display_templates options: " . implode( ', ', $templates ));
 	$template = apply_filters( 'page_template', locate_template( $templates ) );
+	error_log ("jobman_display_templates selected template: " . $template);
 
 	if( '' != $template ) {
 		load_template( $template );
@@ -404,6 +473,20 @@ function jobman_display_template() {
 		exit;
 	}
 }
+
+// Debugging: log the template being loaded
+add_filter('template_include', function ($template) {
+    // Log to PHP error log
+    error_log('[WP Template] ' . $template);
+
+    // Optional: show in the browser for admins
+    if ( current_user_can('manage_options') ) {
+        echo "<!-- Loaded template: {$template} -->";
+    }
+
+    return $template; // IMPORTANT: always return it
+});
+
 
 function jobman_display_head() {
 	global $jobman_displaying, $jobman_geoloc;
@@ -416,7 +499,7 @@ function jobman_display_head() {
 
 	$options = get_option( 'jobman_options' );
 
-	$url = get_page_link( $options['main_page'] );
+	$url = get_page_link( jobman_get_root() );
 	$structure = get_option( 'permalink_structure' );
 	if( '' == $structure ) {
 		$url = get_option( 'home' ) . '?feed=jobman';
