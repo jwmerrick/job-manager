@@ -166,6 +166,18 @@ function jobman_get_root(){
 	return $options['main_page'];
 }
 
+
+// Retrieves and returns the ID for the job manager application page
+// Returns 0 if page not found
+function jobman_get_app(){
+	$data = get_posts( 'post_type=jobman_app_form&numberposts=-1' );
+	if( count($data) > 0 )
+			$applypage = $data[0];
+	else
+			$applypage = 0;
+	return $applypage;
+}
+
 // Takes the id of the job and returns true if the job is active
 // Returns false if it's inactive or couldn't be found
 function jobman_job_is_active( $id ){

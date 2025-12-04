@@ -131,28 +131,16 @@ function jobman_display_jobs_list( $cat ) {
 			uasort( $jobs, 'jobman_sort_highlighted_jobs' );
 
 		$template = $options['templates']['job_list'];
-
-		jobman_add_shortcodes( $jobman_shortcodes );
-		jobman_add_field_shortcodes( $jobman_field_shortcodes );
-
 		$jobman_shortcode_jobs = $jobs;
 		$content .= do_shortcode( $template );
-
-		jobman_remove_shortcodes( array_merge( $jobman_shortcodes, $jobman_field_shortcodes ) );
-
 	}
 	else {
-		$data = get_posts( 'post_type=jobman_app_form&numberposts=-1' );
-
-		if( count( $data > 0 ) )
-			$applypage = $data[0];
-
 		$content .= '<p>';
 		if( 'all' == $cat ||  ! isset( $category->term_id ) ) {
 			$content .= sprintf( __( "We currently don't have any jobs available. Please check back regularly, as we frequently post new jobs. In the meantime, you can also <a href='%s'>send through your résumé</a>, which we'll keep on file.", 'jobman' ), get_page_link( $applypage->ID ) );
 		}
 		else {
-			$url = get_page_link( $applypage->ID );
+			$url = get_page_link( jobman_get_app() );
 			$structure = get_option( 'permalink_structure' );
 			if( '' == $structure ) {
 				$url .= '&amp;c=' . $category->term_id;
