@@ -172,7 +172,7 @@ function jobman_get_root(){
 function jobman_get_app(){
 	$data = get_posts( 'post_type=jobman_app_form&numberposts=-1' );
 	if( count($data) > 0 )
-			$applypage = $data[0];
+			$applypage = $data[0]->ID;
 	else
 			$applypage = 0;
 	return $applypage;

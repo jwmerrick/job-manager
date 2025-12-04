@@ -114,14 +114,12 @@ function jobman_display_jobs_list( $cat ) {
 		$content .= implode(', ', $links) . '<br>';
 	}
 
+	// If we can find an application page, then wrap the whole job list in a form
 	$applyform = false;
-	$data = get_posts( 'post_type=jobman_app_form&numberposts=-1' );
-	if( count( $data ) > 0 ) {
+	$applypage = jobman_get_app();
+	if( $applypage != 0 ) {
 		$applyform = true;
-		$applypage = $data[0];
-
-		$url = get_page_link( $applypage->ID );
-
+		$url = get_page_link( $applypage );
 		$content .= "<form action='$url' method='post'>";
 	}
 
@@ -137,7 +135,7 @@ function jobman_display_jobs_list( $cat ) {
 	else {
 		$content .= '<p>';
 		if( 'all' == $cat ||  ! isset( $category->term_id ) ) {
-			$content .= sprintf( __( "We currently don't have any jobs available. Please check back regularly, as we frequently post new jobs. In the meantime, you can also <a href='%s'>send through your résumé</a>, which we'll keep on file.", 'jobman' ), get_page_link( $applypage->ID ) );
+			$content .= jobman_nojobs_message();
 		}
 		else {
 			$url = get_page_link( jobman_get_app() );
@@ -151,7 +149,7 @@ function jobman_display_jobs_list( $cat ) {
 				else
 					$url .= '/' . $category->slug;
 			}
-			$content .= sprintf( __( "We currently don't have any jobs available in this area. Please check back regularly, as we frequently post new jobs. In the mean time, you can also <a href='%s'>send through your résumé</a>, which we'll keep on file, and you can check out the <a href='%s'>jobs we have available in other areas</a>.", 'jobman' ), $url, get_page_link( $options['main_page'] ) );
+			$content .= jobman_nojobs_message( $category-> slug );
 		}
 	}
 	$content .= '</p>';
@@ -216,6 +214,26 @@ function jobman_page_inactive(){
 	$content = '<p>' . $message . '</p>';
 	$page->post_content = $content;
 	return array( $page );
+}
+
+// Returns a string indicating no jobs available or no jobs
+// in the requested category, as appropriate
+function jobman_nojobs_message( $cat = 'all' ){
+	if ($cat=='all'){
+		$message = "We currently don't have any jobs available. ";
+		$message .= "Please check back regularly, as we frequently post new jobs. ";
+		$message .= "In the meantime, you can also <a href='%s'>send through your résumé</a>, which we'll keep on file.";
+		$message = __($message, 'jobman');
+		$message = sprintf($message, get_page_link( jobman_get_app() ));
+	} else {
+		$message = "We currently don't have any jobs available in this area. ";
+		$message .= "Please check back regularly, as we frequently post new jobs. ";
+		$message .= "In the mean time, you can also <a href='%s'>send through your résumé</a>, which we'll keep on file, ";
+		$message .= "and you can check out the <a href='%s'>jobs we have available in other areas</a>.";
+		$message = __($message, 'jobman');
+		$message = sprintf($message, get_page_link( jobman_get_app() ), get_page_link( jobman_get_root() ));
+	}
+	return $message;
 }
 
 ?>
