@@ -8,7 +8,6 @@ function jobman_display_jobs_list( $cat ) {
 	$page = get_post( $options['main_page'] );
 
 	if( 'all' != $cat ) {
-		$page->ID = -1;
 		$page->post_type = 'jobman_joblist';
 		$page->post_title = __( 'Jobs Listing', 'jobman' );
 	}
