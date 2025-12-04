@@ -2,14 +2,6 @@
 
 global $jobman_shortcode_jobs, $jobman_shortcode_all_jobs, $jobman_shortcode_category, $jobman_shortcode_job, $jobman_shortcode_categories;
 
-function jobman_add_all_shortcodes(){
-	global $jobman_shortcodes, $jobman_field_shortcodes;
-	jobman_add_shortcodes( $jobman_shortcodes );
-	jobman_add_field_shortcodes( $jobman_field_shortcodes );
-	add_shortcode( 'jobmansn_list_jobs', 'jobmansn_list_jobs');
-	add_shortcode( 'jobmansn_debug', 'jobmansn_debug');
-}
-
 function jobman_add_shortcodes( $array ) {
 	foreach ( (array) $array as $shortcode ) {
 		$conditional = 'if_' . $shortcode;
@@ -74,9 +66,9 @@ global $jobman_shortcode_row_number, $jobman_shortcode_field_id, $jobman_shortco
 
 function jobman_shortcode( $atts, $content, $tag ) {
 	global $jobman_shortcode_jobs, $jobman_shortcode_all_jobs, $jobman_shortcode_category, $jobman_shortcode_job, $jobman_shortcode_row_number, $jobman_shortcode_field_id, $jobman_shortcode_field, $wp_query;
+	$options = get_option( 'jobman_options' );
 
 	error_log("jobman_shortcode called with tag: $tag");
-	$options = get_option( 'jobman_options' );
 
 	$return = '';
 	switch ( $tag ) {

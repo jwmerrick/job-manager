@@ -91,14 +91,15 @@ function jobman_page_taxonomy_setup() {
 	register_post_type( 'jobman_interview', array( 'exclude_from_search' => true ) );
 
 	// Create our new taxonomy thing
-	$url = get_page_uri( jobman_get_root() );
+	$options = get_option( 'jobman_options' );
+	
+	$root = get_page( $options['main_page'] );
+	$url = get_page_uri( $root->ID );
 	
 	if( substr( $url, 0, 1 ) != '/' )
 		$url = "/$url";
 	
-	register_taxonomy( 'jobman_category', 
-		array( 'jobman_job', 'jobman_app' ), 
-		array( 'hierarchical' => false, 'label' => __( 'Category', 'series' ), 'query_var' => 'jcat', 'rewrite' => array( 'slug' => $url ) ) );
+	register_taxonomy( 'jobman_category', array( 'jobman_job', 'jobman_app' ), array( 'hierarchical' => false, 'label' => __( 'Category', 'series' ), 'query_var' => 'jcat', 'rewrite' => array( 'slug' => $url ) ) );
 }
 
 function jobman_page_hierarchical_setup( $types ) {
@@ -157,50 +158,6 @@ if( ! function_exists( 'array_insert' ) ) {
 	   
 		return $array;
 	}
-}
-
-// Retrieves and returns the ID for the root Job Manager landing page
-function jobman_get_root(){
-	$options = get_option( 'jobman_options' );
-	return $options['main_page'];
-}
-
-// Takes the id of the job and returns true if the job is active
-// false if it's inactive or couldn't be found
-function jobman_job_is_active( $id ){
-	$job_active = true;
-	$job_post = get_post($id);
-	if (is_object($job_post)){
-
-		// Get the post metadata
-		$jobmeta = get_post_custom( $id );
-		$jobdata = array();	
-		foreach( $jobmeta as $key => $value ) {
-			if( is_array( $value ) )
-				$jobdata[$key] = $value[0];
-			else
-				$jobdata[$key] = $value;
-		}
-
-		// Check if it's expired
-		if( array_key_exists('displayenddate', $jobdata) ){
-			$end_date = $jobdata['displayenddate'];
-			if ( ($end_date != '') && (strtotime($end_date) <= time()) )
-				$job_active = false;
-		}	 
-
-		// Check if it's in the future
-		if( strtotime( $job_post->post_date ) > time() )
-			$job_active = false;
-
-		// Check if it's been archived
-		if( $job_post->post_status == 'draft')
-			$job_active = false;
-
-	} else {
-		$job_active = false;
-	}
-	return $job_active;
 }
 
 ?>

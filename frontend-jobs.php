@@ -137,7 +137,7 @@ function jobman_display_jobs_list( $cat ) {
 		jobman_add_field_shortcodes( $jobman_field_shortcodes );
 
 		$jobman_shortcode_jobs = $jobs;
-		$content .= do_shortcode( $template );						
+		$content .= do_shortcode( $template );
 
 		jobman_remove_shortcodes( array_merge( $jobman_shortcodes, $jobman_field_shortcodes ) );
 
@@ -222,7 +222,7 @@ function jobman_display_job( $job ) {
 		$job = NULL;
 
 	if( NULL == $job ) {
-		$page = get_post( jobman_get_root() );
+		$page = get_post( $options['main_page'] );
 		$page->post_type = 'jobman_job';
 		$page->post_title = __( 'This job doesn\'t exist', 'jobman' );
 
@@ -251,60 +251,4 @@ function jobman_display_job( $job ) {
 
 	return array( $page );
 }
-
-// Filters the posts to format a single job display according
-// to the shortcode templates set up in the options
-// @TODO: Get rid of globals
-function jobman_display_job_single( $posts ){
-	global $jobman_shortcode_job;
-
-	if( count($posts) == 0 || $posts[0]->post_type != 'jobman_job')
-		return $posts;
-
-	$options = get_option( 'jobman_options' );
-	$jobman_shortcode_job = $page = $posts[0];
-	$page_id = $page->ID;
-	$job_inactive = false;
-
-	// Prompt for a login if that is enabled in settings
-	if( $options['user_registration'] && $options['loginform_job'] )
-		$content = jobman_display_login();
-
-	// Get the post metadata
-	$jobmeta = get_post_custom( $page_id );
-	$jobdata = array();
-	foreach( $jobmeta as $key => $value ) {
-		if( is_array( $value ) )
-			$jobdata[$key] = $value[0];
-		else
-			$jobdata[$key] = $value;
-	}
-
-	// Display a message if the job is inactive
-	if( !jobman_job_is_active( $page_id ) ) {
-		$page = get_post( jobman_get_root() );
-		$page->post_type = 'jobman_job';
-		$page->post_title = __( 'This job doesn\'t exist', 'jobman' );
-
-		$message = 'Perhaps you followed an out-of-date link? Please check out the ';
-		$message .= '<a href="%s">jobs we have currently available</a>.';
-		$message = __( $message, 'jobman' );
-		$content = '<p>' . sprintf( $message, get_page_link( $options['main_page'] ) ) . '</p>';
-
-		$page->post_content = $content;
-
-		return array( $page );
-	}
-
-	// Populate the post content according to the stored format
-	$template = $options['templates']['job'];
-	$content = do_shortcode( $template );
-
-	$page->post_title = $options['text']['job_title_prefix'] . $page->post_title;
-
-	$page->post_content = $content;
-	return $posts;
-
-}
-
 ?>

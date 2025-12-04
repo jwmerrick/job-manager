@@ -19,14 +19,12 @@ add_action( 'init', 'jobman_load_translation_file' );
 add_filter( 'query_vars', 'jobman_queryvars' );
 add_action( 'generate_rewrite_rules', 'jobman_add_rewrite_rules' );
 add_action( 'init', 'jobman_flush_rewrite_rules' );
-add_action( 'pre_get_posts', 'jobman_display_preget', 998 );
-//add_filter( 'the_posts', 'jobman_display_jobs', 10 ) ;
-add_filter( 'the_posts', 'jobman_display_filter', 10, 2 ) ;
+add_filter( 'the_posts', 'jobman_display_jobs', 10 ) ;
 // Add our init stuff
-add_action( 'init', 'jobman_add_all_shortcodes' );
 add_action( 'init', 'jobman_display_init' );
 // Set the template we want to use
 add_action( 'template_redirect', 'jobman_display_template' );
+//add_action( 'template_redirect', 'jobman_display_template_v2' );
 // Add our own <head> information
 add_action( 'wp_head', 'jobman_display_head' );
 
