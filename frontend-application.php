@@ -1,6 +1,7 @@
 <?php
 function jobman_display_apply( $jobid, $cat = NULL ) {
 	global $si_image_captcha;
+	get_currentuserinfo();
 
 	$options = get_option( 'jobman_options' );
 
