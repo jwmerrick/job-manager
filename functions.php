@@ -167,7 +167,7 @@ function jobman_get_root(){
 }
 
 // Takes the id of the job and returns true if the job is active
-// false if it's inactive or couldn't be found
+// Returns false if it's inactive or couldn't be found
 function jobman_job_is_active( $id ){
 	$job_active = true;
 	$job_post = get_post($id);

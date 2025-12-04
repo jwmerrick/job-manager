@@ -212,24 +212,8 @@ function jobman_display_job( $job ) {
 		}
 	}
 
-	// Check that the job hasn't expired
-	if( array_key_exists( 'displayenddate', $jobdata ) && '' != $jobdata['displayenddate'] && strtotime($jobdata['displayenddate']) <= time() )
-		$job = NULL;
-
-	// Check that the job isn't in the future
-	if( strtotime( $job->post_date ) > time() )
-		$job = NULL;
-
-	if( NULL == $job ) {
-		$page = get_post( $options['main_page'] );
-		$page->post_type = 'jobman_job';
-		$page->post_title = __( 'This job doesn\'t exist', 'jobman' );
-
-		$content .= '<p>' . sprintf( __( 'Perhaps you followed an out-of-date link? Please check out the <a href="%s">jobs we have currently available</a>.', 'jobman' ), get_page_link( $options['main_page'] ) ) . '</p>';
-
-		$page->post_content = $content;
-
-		return array( $page );
+	if( !jobman_job_is_active($job->ID) ) {
+		return jobman_page_inactive();
 	}
 
 	$template = $options['templates']['job'];
@@ -251,5 +235,17 @@ function jobman_display_job( $job ) {
 	return array( $page );
 }
 
+// Creates a page to return with a message that the job is inactive
+function jobman_page_inactive(){
+	$page = get_post( jobman_get_root() );
+	$page->post_type = 'jobman_job';
+	$page->post_title = __( 'This job doesn\'t exist', 'jobman' );
+	$message = 'Perhaps you followed an out-of-date link? Please check out the <a href="%s">jobs we have currently available</a>.';
+	$message = __($message, 'jobman');
+	$message = sprintf( $message, get_page_link( jobman_get_root() ));
+	$content = '<p>' . $message . '</p>';
+	$page->post_content = $content;
+	return array( $page );
+}
 
 ?>
