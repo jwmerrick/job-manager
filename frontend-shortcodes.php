@@ -2,6 +2,15 @@
 
 global $jobman_shortcode_jobs, $jobman_shortcode_all_jobs, $jobman_shortcode_category, $jobman_shortcode_job, $jobman_shortcode_categories;
 
+// Adds all shortcodes on init
+function jobman_add_all_shortcodes(){
+	global $jobman_shortcodes, $jobman_field_shortcodes;
+	jobman_add_shortcodes( $jobman_shortcodes );
+	jobman_add_field_shortcodes( $jobman_field_shortcodes );
+	add_shortcode( 'jobmansn_list_jobs', 'jobmansn_list_jobs');
+	add_shortcode( 'jobmansn_debug', 'jobmansn_debug');
+}
+
 function jobman_add_shortcodes( $array ) {
 	foreach ( (array) $array as $shortcode ) {
 		$conditional = 'if_' . $shortcode;

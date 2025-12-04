@@ -1,9 +1,6 @@
 <?php
 // Adding support for shortcodes in normal pages and posts JM 10/26/21
 
-add_shortcode( 'jobmansn_list_jobs', 'jobmansn_list_jobs');
-add_shortcode( 'jobmansn_debug', 'jobmansn_debug');
-
 function jobmansn_list_jobs(){
 	global $wp_filter, $wp_current_filter, $wp_query, $wpdb;
 	$options = get_option( 'jobman_options' );

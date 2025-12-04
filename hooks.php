@@ -21,6 +21,7 @@ add_action( 'generate_rewrite_rules', 'jobman_add_rewrite_rules' );
 add_action( 'init', 'jobman_flush_rewrite_rules' );
 add_filter( 'the_posts', 'jobman_display_jobs', 10 ) ;
 // Add our init stuff
+add_action( 'init', 'jobman_add_all_shortcodes' );
 add_action( 'init', 'jobman_display_init' );
 // Set the template we want to use
 add_action( 'template_redirect', 'jobman_display_template' );
