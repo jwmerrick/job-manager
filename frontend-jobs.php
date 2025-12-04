@@ -18,7 +18,7 @@ function jobman_display_jobs_list( $cat ) {
 		if( NULL == $category ) {
 			$cat = 'all';
 		}
-		else {
+		else {			
 			$page->post_title = $category->name;
 			$page->post_parent = $options['main_page'];
 			$page->post_name = $category->slug;
@@ -251,4 +251,6 @@ function jobman_display_job( $job ) {
 
 	return array( $page );
 }
+
+
 ?>
