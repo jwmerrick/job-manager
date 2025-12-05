@@ -82,7 +82,7 @@ function jobman_job_delete() {
 		wp_delete_post( $job );
 	}
 
-	jobman_admin_notice_popup ('notice-info', __('Jobs deleted', 'jobman'));
+	jobman_admin_notice( 'notice-info', __('Jobs deleted', 'jobman') );
 
 }
 

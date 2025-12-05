@@ -7,14 +7,14 @@ Will be especially helpful in figuring out if you've got the template setup righ
 Complete:
 [X] When accessing Job List Frontend, "Attempt to read property ID on null in frontend-shortcodes on Line 90, 92 for /jobs/
 [X] Do not flush rewrite rules on every page load
+[X] Fix Notifications (add / delete / archive) to use core functionality
+[X] On admin-interviews, get call to undefined function cal_days_in_month -> Requires PHP calendar extension
 
 To-Do:
 [ ] RSS Endpoint, Enable / Disable in Admin settings, shortcode for RSS (It's in the code, but not documented)
 [ ] Fatal error on Admin > Interviews
 [ ] Use of deprecated get_currentuserinfo() in admin-comments.php, admin-emails.php, frontend-application.php, frontend-user.php
 [ ] Deactivate should remove or make "Draft" the Job Manager main page
-[ ] Fix Notifications (add / delete / archive) to use core functionality
-[X] On admin-interviews, get call to undefined function cal_days_in_month -> Requires PHP calendar extension
 
 ## v0.9.0 ->
 Add Help Pages to Admin
