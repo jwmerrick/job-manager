@@ -134,15 +134,21 @@ function jobman_current_url() {
 		return $pageURL;
 }
 
+// Adds where clause to query to select for active jobs
 function jobman_job_live_where( $where = '' ) {
 	global $wpdb;
-	$where .= " AND $wpdb->posts.post_date_gmt <= UTC_TIMESTAMP() AND jobman_postmeta.meta_key='displayenddate' AND ( jobman_postmeta.meta_value='' OR jobman_postmeta.meta_value >= UTC_TIMESTAMP() ) ";
+	$where .= " AND $wpdb->posts.post_date_gmt <= UTC_TIMESTAMP()";
+	$where .= " AND jobman_postmeta.meta_key='displayenddate' ";
+	$where .= " AND ( jobman_postmeta.meta_value='' OR jobman_postmeta.meta_value >= UTC_TIMESTAMP() ) ";
+	error_log('jobmnan_job_live_where: ' . $where);
 	return $where;
 }
 
+// Joins post metadataa so I can get the job display end date
 function jobman_job_live_join( $join = '' ) {
 	global $wpdb;
 	$join .= " LEFT JOIN $wpdb->postmeta AS jobman_postmeta ON $wpdb->posts.ID = jobman_postmeta.post_id ";
+	error_log('jobmnan_job_live_join: ' . $join);
 	return $join;
 }
 

@@ -63,6 +63,9 @@ function _jobman_activate() {
 	$options['version'] = JOBMAN_VERSION;
 	$options['db_version'] = JOBMAN_DB_VERSION;
 	update_option( 'jobman_options', $options );
+
+	jobman_flush_rewrite_rules();
+
 }
 
 function jobman_create_default_settings() {
