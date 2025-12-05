@@ -18,10 +18,8 @@ To-Do:
 The only post statuses used are "Draft" for jobs marked as archive and "Publish" for jobs that are future.  Modify the post status usage to leverage WP's built-in post functionality.
 [X] Set jobs to publish in future with status "Future'.  WP will change them to "Publish" automatically.
 [ ] Add custom post status "Archive" for jobs marked as archive.
-[ ] New jobs can be saved as "Draft".  When editing a job, instead of "Save", will have "Preview", "Publish", "Archive", "Unarchive"
-    -> Preview -> Save as draft -> Preview
-    -> Publish -> Save as publish -> Back to Job List
-    -> Archive -> 
+[ ] New jobs can be saved as "Draft".  When editing a job, instead of "Save", will have "Preview", "Publish", "Archive"
+[ ] Use post type 'revision' for preview functionality.
 
 ## v1.0.0 -> 
 Add REST endpoint for integration with OpenCATS
