@@ -80,9 +80,9 @@ if( is_array( $jobman_options ) && array_key_exists( 'fields', $jobman_options )
 
 /* Display a notice that can be dismissed */
 
-add_action('admin_notices', 'jobman_admin_notice');
+add_action('admin_notices', 'jobman_admin_notice_welcome');
 
-function jobman_admin_notice() {
+function jobman_admin_notice_welcome() {
 	if ( current_user_can( 'install_plugins' ) ){
 		global $current_user ;
 		$user_id = $current_user->ID;

@@ -35,28 +35,6 @@ function jobman_list_jobs() {
 		}
 	}
 
-	// Decide which alert box to display
-	// Note these should be updated to use notice-error, notice-success and notice-info
-	// https://developer.wordpress.org/reference/hooks/admin_notices/
-	switch ($return_code) {
-		case 0:
-			$popup_class = 'error';
-			$popup_message = __( 'There is no job associated with that Job ID', 'jobman' );
-			break;
-		case 2:
-			$popup_class = 'updated';
-			$popup_message = __( 'New job created', 'jobman' ) ;
-			break;
-		case 3:
-			$popup_class = 'updated';
-			$popup_message = __( 'Job updated', 'jobman' );
-			break;
-		case 4:
-			$popup_class = 'error';
-			$popup_message = __( 'You do not have permission to edit that Job', 'jobman' ) ;
-			break;
-	}
-
 	// If the request is not for a mass delete (which triggers the confirm dispaly)
 	// or to edit an individual job (which triggerd the job edit form), then we fall
 	// through to display the job list.
@@ -71,12 +49,7 @@ function jobman_list_jobs() {
 			</p>
 		</form>
 
-<?php if ($return_code != 1){ ?>
-	<div class="<?= $popup_class ?>">
-		<?= $popup_message ?>
-	</div>
-<?php }
-
+<?php 
 	$jobs = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=publish,draft,future' );
 ?>
 		<form action="<?php echo admin_url('admin-post.php'); ?>" method="post">

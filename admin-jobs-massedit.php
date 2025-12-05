@@ -81,6 +81,9 @@ function jobman_job_delete() {
 		// Delete the job
 		wp_delete_post( $job );
 	}
+
+	jobman_admin_notice_popup ('notice-info', __('Jobs deleted', 'jobman'));
+
 }
 
 function jobman_job_archive() {

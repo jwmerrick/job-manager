@@ -26,6 +26,32 @@ function jobman_admin_job_edit() {
         }
 	}
 
+	// Decide which alert box to display
+	// Note these should be updated to use notice-error, notice-success and notice-info
+	// https://developer.wordpress.org/reference/hooks/admin_notices/
+	switch ($return_code) {
+		case 0:
+			$popup_class = 'notice-error';
+			$popup_message = __( 'There is no job associated with that Job ID', 'jobman' );
+			break;
+		case 2:
+			$popup_class = 'notice-success';
+			$popup_message = __( 'New job created', 'jobman' ) ;
+			break;
+		case 3:
+			$popup_class = 'notice-success';
+			$popup_message = __( 'Job updated', 'jobman' );
+			break;
+		case 4:
+			$popup_class = 'notice-error';
+			$popup_message = __( 'You do not have permission to edit that Job', 'jobman' ) ;
+			break;
+	}
+
+    if ( $return_code != 1){
+        jobman_admin_notice_popup( $popup_class, $popup_message );
+    }
+
     jobman_jobedit_redirect( $return_code );                        // Return when done processing.
 }
 
