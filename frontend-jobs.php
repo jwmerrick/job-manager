@@ -1,11 +1,13 @@
 <?php // encoding: UTF-8
 function jobman_display_jobs_list( $cat ) {
 	global $jobman_shortcode_jobs, $jobman_shortcode_all_jobs, $jobman_shortcode_category, $jobman_shortcodes, $jobman_field_shortcodes, $wp_query;
+	global $wpdb;
 	$options = get_option( 'jobman_options' );
 
 	$content = '';
 
-	$page = get_post( $options['main_page'] );
+	$root = jobman_get_root();
+	$page = get_post( $root );
 
 	if( 'all' != $cat ) {
 		$page->post_type = 'jobman_joblist';
@@ -19,14 +21,15 @@ function jobman_display_jobs_list( $cat ) {
 		}
 		else {			
 			$page->post_title = $category->name;
-			$page->post_parent = $options['main_page'];
+			$page->post_parent = $root;
 			$page->post_name = $category->slug;
 		}
 	}
 
 	$args = array(
 				'post_type' => 'jobman_job',
-				'suppress_filters' => false
+				'suppress_filters' => false,
+			    'jobman_filter'    => true 							// <-- custom flag
 			);
 
 	if( ! empty( $options['sort_by'] ) ) {
@@ -71,7 +74,17 @@ function jobman_display_jobs_list( $cat ) {
 	add_filter( 'posts_join', 'jobman_job_live_join' );
 	add_filter( 'posts_distinct', 'jobman_job_live_distinct' );
 
+	// Debugging
+	add_filter('posts_request', function( $sql, \WP_Query $query ) {
+		if ( $query->get('jobman_filter') ) {
+			error_log( 'Final SQL (jobman main query): ' . $sql );
+		}
+		return $sql;
+	}, 10, 2);
+
 	$jobs = get_posts( $args );
+
+	error_log ( 'jobman_display_jobs_list: ' . $wpdb->last_query );
 
 	$args['posts_per_page'] = '';
 	$args['offset'] = '';

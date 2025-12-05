@@ -28,13 +28,20 @@ function jobman_queryvars( $qvars ) {
 	return $qvars;
 }
 
+// Pull stored rewrite rules from database and add them
 function jobman_add_rewrite_rules( $wp_rewrite ) {
 	$options = get_option( 'jobman_options' );
 
-	if( ! empty( $wp_rewrite->rules ) && is_array( $wp_rewrite->rules ) && is_array( $options ) && array_key_exists( 'rewrite_rules', $options ) && is_array($options['rewrite_rules'] ) )
+	if( ! empty( $wp_rewrite->rules ) 
+		&& is_array( $wp_rewrite->rules ) 
+		&& is_array( $options ) 
+		&& array_key_exists( 'rewrite_rules', $options ) 
+		&& is_array($options['rewrite_rules'] ) ){
 		$wp_rewrite->rules = array_merge( $options['rewrite_rules'], $wp_rewrite->rules );
+	}
 }
 
+// Create our rewrite rules and store them in the database
 function jobman_flush_rewrite_rules() {
 	global $wp_rewrite;
 
@@ -42,8 +49,8 @@ function jobman_flush_rewrite_rules() {
 
 	$options = get_option( 'jobman_options' );
 
-	$root = get_page( $options['main_page'] );
-	$url = get_page_uri( $root->ID );
+	$root = jobman_get_root();
+	$url = get_page_uri( $root );
 
 	if( ! $url )
 		return;
@@ -69,11 +76,11 @@ function jobman_flush_rewrite_rules() {
 	// Rule 5: /jobs/<slug>/ -> index.php?jobman_data=<slug>?page=123 	Maybe broken?
 	if( empty( $lang ) ) {
 		$new_rules = array(
-							"$url/?((page)*/(\d+)/?)?$" => "index.php?jobman_root_id=$root->ID" .
+							"$url/?((page)*/(\d+)/?)?$" => "index.php?jobman_root_id=$root" .
 							'&page=$matches[2]',
-							"$url/apply(/([^/]+))?/?$" => "index.php?jobman_root_id=$root->ID" .
+							"$url/apply(/([^/]+))?/?$" => "index.php?jobman_root_id=$root" .
 							'&jobman_page=apply&jobman_data=$matches[2]',
-							"$url/register(/([^/]+))?/?$" => "index.php?jobman_root_id=$root->ID" .
+							"$url/register(/([^/]+))?/?$" => "index.php?jobman_root_id=$root" .
 							'&jobman_page=register&jobman_data=$matches[2]',
 							"$url/feed/?$" => "index.php?feed=jobman",
 							"$url/([^/]+)/?(page/(\d+)/?)?$" => 'index.php?jobman_data=$matches[1]'.
@@ -82,13 +89,13 @@ function jobman_flush_rewrite_rules() {
 	}
 	else {
 		$new_rules = array(
-							"($lang)?$url/?((page)*/(\d+)/?)?$" => "index.php?jobman_root_id=$root->ID" .
+							"($lang)?$url/?((page)*/(\d+)/?)?$" => "index.php?jobman_root_id=$root" .
 							'&lang=$matches[1]' .
 							'&page=$matches[3]',
-							"($lang)?$url/apply(/([^/]+))?/?$" => "index.php?jobman_root_id=$root->ID" .
+							"($lang)?$url/apply(/([^/]+))?/?$" => "index.php?jobman_root_id=$root" .
 							'&lang=$matches[1]' .
 							'&jobman_page=apply&jobman_data=$matches[3]',
-							"($lang)?$url/register(/([^/]+))?/?$" => "index.php?jobman_root_id=$root->ID" .
+							"($lang)?$url/register(/([^/]+))?/?$" => "index.php?jobman_root_id=$root" .
 							'&lang=$matches[1]' .
 							'&jobman_page=register&jobman_data=$matches[3]',
 							"($lang)?$url/feed/?$" => 'index.php?feed=jobman&lang=$matches[1]',

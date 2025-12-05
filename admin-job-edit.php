@@ -98,6 +98,7 @@ function jobman_updatedb_process( $jobid, $job_data_san ){
                 break;
             case 'jobman-displaystartdate':
                 $page['post_date'] = $field;
+                $page['post_date_gmt'] = get_gmt_from_date( $field );
                 wp_update_post ( $page );
                 break;
             case 'jobman-displayenddate':

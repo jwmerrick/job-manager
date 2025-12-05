@@ -113,7 +113,9 @@ function jobman_list_jobs() {
 		if( count( $expired ) ) {
 ?>
 		<tr class="jobman-expired-jobs">
-			<td colspan="<?php echo $fieldcount + 5 ?>"><?php _e( 'Expired jobs', 'jobman' ) ?></td>
+			<td colspan="<?php echo $fieldcount + 5 ?>">
+				<?php _e( 'Expired and Archived Jobs', 'jobman' ) ?>
+			</td>
 		</tr>
 <?php
 		}
@@ -171,8 +173,14 @@ function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 			$displayenddate = get_post_meta( $job->ID, 'displayenddate', true );
 
 			$display = false;
-			if( ( '' == $displayenddate || strtotime( $displayenddate ) > time() ) && 'publish' == $job->post_status )
-				$display = true;
+
+			// Decide whether to display under "Active" jobs or "Expired" jobs in the job list
+			// I like 'future' jobs to show as future in the top part of the list
+			if ( ( $job->post_status == 'publish' ) || ( $job->post_status == 'future' ) ){
+				if ( '' == $displayenddate || strtotime( $displayenddate ) > time() ){
+					$display = true;
+				}
+			}
 
 			if( ! ( $display || $showexpired ) ) {
 				$expiredjobs[] = $job;
