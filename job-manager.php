@@ -117,9 +117,6 @@ function jobman_nag_ignore() {
 // Load Jobman
 //
 
-// Call jobman_activate so that shortcodes are available for loading
-add_action('init', 'jobman_activate');
-
 // Jobman global functions
 require_once( JOBMAN_DIR . '/functions.php' );
 
