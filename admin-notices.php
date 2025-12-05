@@ -1,6 +1,6 @@
 <?php
 
-add_action ('admin_notices', 'jobman_admin_notice');
+add_action ('admin_notices', 'jobman_admin_notice_popup');
 add_action('admin_notices', 'jobman_admin_notice_welcome');
 add_action('admin_init', 'jobman_nag_ignore');
 
@@ -10,7 +10,7 @@ add_action('admin_init', 'jobman_nag_ignore');
 // notice-warning
 // notice-success
 // notice-info
-function jobman_admin_notice(){
+function jobman_admin_notice_popup(){
 	$class = get_transient ( 'jobman_notice_class' );
 	$message = get_transient ( 'jobman_notice_message' );
 	if ( $class && $message ){
@@ -23,7 +23,7 @@ function jobman_admin_notice(){
 // Two optional arguments  for the class and the message
 // Optional argument for transient duration (default 10 seconds)
 // Fire ths function with appropriate arguments to schedule admin notice on next page load.
-function jobman_admin_notice_popup ( $class = 'notice-info', $message = 'Job Manager Notice', $seconds = 10 ){
+function jobman_admin_notice ( $class = 'notice-info', $message = 'Job Manager Notice', $seconds = 10 ){
 	set_transient ('jobman_notice_class', $class, $seconds);	
 	set_transient ('jobman_notice_message', $message, $seconds);
 }

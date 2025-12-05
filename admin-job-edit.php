@@ -49,7 +49,7 @@ function jobman_admin_job_edit() {
 	}
 
     if ( $return_code != 1){
-        jobman_admin_notice_popup( $popup_class, $popup_message );
+        jobman_admin_notice( $popup_class, $popup_message );
     }
 
     jobman_jobedit_redirect( $return_code );                        // Return when done processing.
