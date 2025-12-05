@@ -54,7 +54,7 @@ function jobman_interview_month( $filter, $caltype = 'full' ) {
 	if( ! $firstday )
 		$firstday = 7;
 	
-	$days = cal_days_in_month( CAL_GREGORIAN, $month, $year );
+	$days = (int) date('t', strtotime("$year-$month-01"));			// Get the number of days in the month
 	
 	$tableclass = '';
 	$dayformat = 'D';

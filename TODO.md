@@ -14,6 +14,7 @@ To-Do:
 [ ] Use of deprecated get_currentuserinfo() in admin-comments.php, admin-emails.php, frontend-application.php, frontend-user.php
 [ ] Deactivate should remove or make "Draft" the Job Manager main page
 [ ] Fix Notifications (add / delete / archive) to use core functionality
+[X] On admin-interviews, get call to undefined function cal_days_in_month -> Requires PHP calendar extension
 
 ## v0.9.0 ->
 Add Help Pages to Admin

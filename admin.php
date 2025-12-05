@@ -32,6 +32,7 @@ function jobman_admin_setup() {
 	$jobs_title = __( 'Jobs', 'jobman' );
 	$apps_title = __( 'Applications', 'jobman' );
 	$emails_title = __( 'Emails', 'jobman' );
+	$interviews_title = __( 'Interviews', 'jobman' );
 	add_menu_page( $main_title, $main_title, 'publish_posts', 'jobman-conf', 'jobman_conf' );
 	//---------------------------parent_slug----page_title---menu_title-------capability------------menu_slug-------------------function
    	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $settings_title, 'manage_options',     'jobman-conf',              'jobman_conf' );
@@ -41,8 +42,7 @@ function jobman_admin_setup() {
 	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $emails_title,   'read_private_pages', 'jobman-list-emails',       'jobman_list_emails' );
 
 	if( $options['interviews'] )
-		$pages[] = add_submenu_page( 'jobman-conf', __( 'Job Manager', 'jobman' ), __( 'Interviews', 'jobman' ), 'read_private_pages', 'jobman-interviews', 'jobman_interviews' );
-
+		$pages[] = add_submenu_page( 'jobman-conf', $main_title, $interviews_title, 'read_private_pages', 'jobman-interviews', 'jobman_interviews' );
 
 	// Load our header info
 	foreach( $pages as $page ) {
