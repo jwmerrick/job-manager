@@ -20,6 +20,8 @@ require_once( JOBMAN_DIR . '/admin-emails.php' );
 require_once( JOBMAN_DIR . '/admin-interviews.php' );
 // Comment handling functions
 require_once( JOBMAN_DIR . '/admin-comments.php' );
+// Admin Notice Handling
+require_once( JOBMAN_DIR . '/admin-notices.php' );
 
 function jobman_admin_setup() {
 	$options = get_option( 'jobman_options' );
