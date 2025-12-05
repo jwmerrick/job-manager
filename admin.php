@@ -26,12 +26,19 @@ function jobman_admin_setup() {
 
 	// Setup the admin menu item
 	$pages = array();
-	add_menu_page( __( 'Job Manager', 'jobman' ), __( 'Job Manager', 'jobman' ), 'publish_posts', 'jobman-conf', 'jobman_conf' );
-   	$pages[] = add_submenu_page( 'jobman-conf', __( 'Job Manager', 'jobman' ), __( 'Settings', 'jobman' ), 'manage_options', 'jobman-conf', 'jobman_conf' );
-	$pages[] = add_submenu_page( 'jobman-conf', __( 'Job Manager', 'jobman' ), __( 'Add Job', 'jobman' ), 'publish_posts', 'jobman-add-job', 'jobman_add_job' );
-	$pages[] = add_submenu_page( 'jobman-conf', __( 'Job Manager', 'jobman' ), __( 'Jobs', 'jobman' ), 'publish_posts', 'jobman-list-jobs', 'jobman_list_jobs' );
-	$pages[] = add_submenu_page( 'jobman-conf', __( 'Job Manager', 'jobman' ), __( 'Applications', 'jobman' ), 'read_private_pages', 'jobman-list-applications', 'jobman_list_applications' );
-	$pages[] = add_submenu_page( 'jobman-conf', __( 'Job Manager', 'jobman' ), __( 'Emails', 'jobman' ), 'read_private_pages', 'jobman-list-emails', 'jobman_list_emails' );
+	$main_title = __( 'Job Manager', 'jobman' );
+	$settings_title = __( 'Settings', 'jobman' );
+	$add_job_title = __( 'Add Job', 'jobman' );
+	$jobs_title = __( 'Jobs', 'jobman' );
+	$apps_title = __( 'Applications', 'jobman' );
+	$emails_title = __( 'Emails', 'jobman' );
+	add_menu_page( $main_title, $main_title, 'publish_posts', 'jobman-conf', 'jobman_conf' );
+	//---------------------------parent_slug----page_title---menu_title-------capability------------menu_slug-------------------function
+   	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $settings_title, 'manage_options',     'jobman-conf',              'jobman_conf' );
+	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $add_job_title,  'publish_posts',      'jobman-add-job',           'jobman_add_job' );
+	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $jobs_title,     'publish_posts',      'jobman-list-jobs',         'jobman_list_jobs' );
+	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $apps_title,     'read_private_pages', 'jobman-list-applications', 'jobman_list_applications' );
+	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $emails_title,   'read_private_pages', 'jobman-list-emails',       'jobman_list_emails' );
 
 	if( $options['interviews'] )
 		$pages[] = add_submenu_page( 'jobman-conf', __( 'Job Manager', 'jobman' ), __( 'Interviews', 'jobman' ), 'read_private_pages', 'jobman-interviews', 'jobman_interviews' );

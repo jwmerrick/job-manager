@@ -13,6 +13,10 @@ To-Do:
 [ ] Fatal error on Admin > Interviews
 [ ] Use of deprecated get_currentuserinfo() in admin-comments.php, admin-emails.php, frontend-application.php, frontend-user.php
 [ ] Deactivate should remove or make "Draft" the Job Manager main page
+[ ] Fix Notifications (add / delete / archive) to use core functionality
+
+## v0.9.0 ->
+Add Help Pages to Admin
 
 ### Post Status
 The only post statuses used are "Draft" for jobs marked as archive and "Publish" for jobs that are future.  Modify the post status usage to leverage WP's built-in post functionality.
