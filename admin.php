@@ -27,13 +27,19 @@ function jobman_admin_setup() {
 	// Setup the admin menu item
 	$pages = array();
 	$main_title = __( 'Job Manager', 'jobman' );
+	$icon = 'dashicons-clipboard';
 	$settings_title = __( 'Settings', 'jobman' );
 	$add_job_title = __( 'Add Job', 'jobman' );
 	$jobs_title = __( 'Jobs', 'jobman' );
 	$apps_title = __( 'Applications', 'jobman' );
 	$emails_title = __( 'Emails', 'jobman' );
 	$interviews_title = __( 'Interviews', 'jobman' );
-	add_menu_page( $main_title, $main_title, 'publish_posts', 'jobman-conf', 'jobman_conf' );
+
+	// Main Admin Menu
+	//-------------page_title---menu_title---capability-------menu_slug------function-------icon_url-----position
+	add_menu_page( $main_title, $main_title, 'publish_posts', 'jobman-conf', 'jobman_conf', $icon );
+
+	// Admin Submenus
 	//---------------------------parent_slug----page_title---menu_title-------capability------------menu_slug-------------------function
    	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $settings_title, 'manage_options',     'jobman-conf',              'jobman_conf' );
 	$pages[] = add_submenu_page( 'jobman-conf', $main_title, $add_job_title,  'publish_posts',      'jobman-add-job',           'jobman_add_job' );
