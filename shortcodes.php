@@ -52,12 +52,15 @@ function jobmansn_job_entry( $job, $fields ){
 	$content .= '<td><a href = "' . get_page_link($job) . '">';
 	$content .= $job->post_title . '</a></td></tr>';
 	foreach ($fields as $fid => $field){												// Fields
-		$fielddata = $jobdata['data' . $fid][0];
-		if (in_array($field['label'], $desired_fields) && $fielddata != ''){			// If it's one of the ones we want to show on the list, and not empty
-			$content .= '<tr><th scope="row">' . $field['label'];
-			$content .= '<td>' . $fielddata;
-			$content .= '</td>';
-			$content .= '</th></tr>';
+		$fieldkey = 'data' . $fid;
+		if ( in_array( $fieldkey, $jobdata )){
+			$fielddata = $jobdata['data' . $fid][0];
+			if (in_array($field['label'], $desired_fields) && $fielddata != ''){			// If it's one of the ones we want to show on the list, and not empty
+				$content .= '<tr><th scope="row">' . $field['label'];
+				$content .= '<td>' . $fielddata;
+				$content .= '</td>';
+				$content .= '</th></tr>';
+			}
 		}
 	}
 	$content .= '<tr><td></td>';

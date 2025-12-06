@@ -76,10 +76,12 @@ function jobman_application_setup() {
 ?>
 					<input type="checkbox" name="jobman-listdisplay[<?php echo $id ?>]" value="1"<?php echo $checked ?> /> <?php _e( 'Show this field in the Application List?', 'jobman' ) ?><br/>
 <?php
-			if( 1 == $field['emailblock'] )
-				$checked = ' checked="checked"';
-			else
-				$checked = '';
+			if ( array_key_exists ( 'emailblock', $field ) ){
+				if( 1 == $field['emailblock'] )
+					$checked = ' checked="checked"';
+				else
+					$checked = '';
+			}
 ?>
 					<input type="checkbox" name="jobman-emailblock[<?php echo $id ?>]" value="1"<?php echo $checked ?> /> <?php _e( 'Block this field from application emails?', 'jobman' ) ?>
 				</td>
