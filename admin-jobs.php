@@ -603,7 +603,11 @@ function jobman_edit_job( $jobid ) {
 				</td>
 			</tr>
 		</table>
-		<p class="submit"><input type="submit" name="submit"  class="button-primary" value="<?= $submit ?>" /></p>
+		<p class="submit">
+			<input type="submit" name="submit" class="button-primary" value="<?= $submit ?>" />
+			<?php $preview = __('Preview Job', 'jobman'); ?>
+			<input type="submit" name="preview" class="button-primary" value="<?= $preview ?>" style="margin-left: 1em;"/>
+		</p>
 	</div>
 	</form>
 <?php
