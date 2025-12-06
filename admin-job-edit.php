@@ -1,9 +1,17 @@
 <?php
-// Refactoring admin-jobs to support fixing security issues.
-// Need a new endpoint for job edit admin.
-// Was jobman_edit_job handlers
-// Modifying to use admin-post.php instead: https://developer.wordpress.org/reference/hooks/admin_post_action/
-// JM 11/28/25
+/**
+ * Handler for job add and edit requests
+ *
+ * Reference https://developer.wordpress.org/reference/hooks/admin_post_action/
+ * 
+ * @category Admin
+ * @package job-manager
+ * @author Jason Merrick
+ * @copyright 2025 Jason Merrick
+ * @license https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3
+ * @version 0.8.4
+ * @since 0.8.4
+ */
 
 add_action( 'admin_post_job_edit', 'jobman_admin_job_edit' );
 

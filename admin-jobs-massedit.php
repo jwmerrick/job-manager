@@ -1,8 +1,17 @@
 <?php
-// Refactoring admin-jobs to support fixing security issues.
-// Need a new endpoint for jobs mass edit from the job list admin.
-// Was jobman_list_jobs handlers
-// JM 11/28/25
+/**
+ * Handler for job list mass edit requests
+ *
+ * Reference https://developer.wordpress.org/reference/hooks/admin_post_action/
+ *
+ * @category Admin
+ * @package job-manager
+ * @author Jason Merrick
+ * @copyright 2025 Jason Merrick
+ * @license https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3
+ * @version 0.8.4
+ * @since 0.8.4
+ */
 
 add_action( 'admin_post_jobman_mass_edit_jobs', 'jobman_admin_mass_edit_jobs' );
 
