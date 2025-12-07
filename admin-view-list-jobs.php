@@ -217,7 +217,8 @@ function jobman_list_jobs_data( $jobs, $showexpired = false ) {
 
 // Renders the html for a a single job to be displayed in the job list
 function jobman_admin_joblist_render_single( $job, $showexpired ){
-    $cats = wp_get_object_terms( $job->ID, 'jobman_category' );
+    $id = $job->ID;
+    $cats = wp_get_object_terms( $id, 'jobman_category' );
     $cats_arr = array();
     if( count( $cats ) > 0 ) {
         foreach( $cats as $cat ) {
@@ -226,19 +227,116 @@ function jobman_admin_joblist_render_single( $job, $showexpired ){
     }
     $catstring = implode( ', ', $cats_arr );
 
-    $displayenddate = get_post_meta( $job->ID, 'displayenddate', true );
-
-    $display = false;
+    $displayenddate = get_post_meta( $id, 'displayenddate', true );
 
     // Decide whether to display under "Active" jobs or "Expired" jobs in the job list
     // I like 'future' jobs to show as future in the top part of the list
-    if ( ( $job->post_status == 'publish' ) || ( $job->post_status == 'future' ) ){
-        if ( '' == $displayenddate || strtotime( $displayenddate ) > time() ){
+    $display = false;
+    if ( !$showexpired ){
+        if ( jobman_job_is_draft($id) || jobman_job_is_future($id) || jobman_job_is_active($id) ){
+            $display = true;
+        }
+    } else {
+        if ( jobman_job_is_expired($id) || jobman_job_is_archived($id) ){
             $display = true;
         }
     }
 
+    $num_apps = 0;
+    // Figure out if there are applications available and, if so, include a link
+    if ( $num_apps = count( jobman_get_job_apps($id) ) ){
+        $apps_link = admin_url( 'admin.php?page=jobman-list-applications&amp;jobman-jobid=' . $id );
+    }
 
+    $class = 'live';
+    if ( jobman_job_is_draft($id) || jobman_job_is_future($id) ){
+        $class = 'future';
+    } elseif ( jobman_job_is_expired($id) || jobman_job_is_archived($id) ){
+        $class = 'expired';
+    }
+
+    $can_edit = false;
+    if ( current_user_can( 'edit_others_posts' ) ){
+        $can_edit = true;
+    } elseif ( get_post($id)->post_author == $current_user->ID ){
+        $can_edit = true;
+    }
+
+?>
+
+<tr class="<?= $class ?>">
+    <th scope="row" class="check-column">
+        <?php if ( $can_edit ) { ?>
+            <input type="checkbox" name="job[]" value="<?php echo $job->ID ?>" />
+        <?php } ?>
+// ?>
+// 				</th>
+// 				<td class="post-title page-title column-title">
+// 					<strong>
+// 						<a href="?page=jobman-list-jobs&amp;jobman-jobid=<?php echo $job->ID ?>">
+// 							<?php echo $job->post_title ?>
+// 						</a>
+// 					</strong>
+// 				<div class="row-actions">
+// <?php
+// 			if( current_user_can( 'edit_others_posts' ) || $job->post_author == $current_user->ID ) {
+// ?>
+// 				<a href="?page=jobman-list-jobs&amp;jobman-jobid=<?php echo $job->ID ?>"><?php _e( 'Edit', 'jobman' ) ?></a> |
+// <?php
+// 			}
+// ?>
+// 				<a href="<?php echo get_page_link( $job->ID ) ?>"><?php _e( 'View', 'jobman' ) ?></a>
+// <?php
+// 			if( current_user_can( 'edit_others_posts' ) || $job->post_author == $current_user->ID ) {
+// 				$url = wp_nonce_url( admin_url('admin-post.php'), 'jobman-mass-edit-jobs' );
+// 				$url = add_query_arg('action', 'jobman_mass_edit_jobs', $url);
+// 				$url = add_query_arg('job[]', $job->ID, $url);
+// 				if( $display ) {
+// 					$url = add_query_arg('jobman-mass-edit-jobs', 'archive', $url);
+// ?>
+// 				| <a href="<?= $url; ?>"><?php _e( 'Archive', 'jobman' ) ?></a>
+// <?php
+// 				}
+// 				else {
+// 					$url = add_query_arg('jobman-mass-edit-jobs', 'unarchive', $url);
+// ?>
+// 				| <a href="<?= $url; ?>"><?php _e( 'Unarchive', 'jobman' ) ?></a>
+// <?php
+// 				}
+// 			}
+// ?>
+// 				</div></td>
+// 				<td><?= $catstring ?></td>
+// <?php
+// 			if( count( $fields ) ) {
+// 				foreach( $fields as $id => $field ) {
+// 					if( array_key_exists( 'listdisplay', $field ) && $field['listdisplay'] ) {
+// 						$data = get_post_meta( $job->ID, "data$id", true );
+// 						if( ! empty( $data ) ) {
+// 							if( 'file' == $field['type'] )
+// 								$data = '<a href="' . wp_get_attachment_url( $data ) . '">' . __( 'Download', 'jobman' ) . '</a>';
+// 							else if( is_array( $data ) )
+// 								$data = implode( ', ', $data );
+// 						}
+// ?>
+// 				<td><?= $data ?></td>
+// <?php
+// 					}
+// 				}
+// 			}
+// 			$status = __( 'Live', 'jobman' );
+// 			if( $future )
+// 				$status = __( 'Future', 'jobman' );
+// 			else if( ! $display )
+// 				$status = __( 'Expired', 'jobman' );
+// ?>
+// 				<td>
+// 					<?php echo date( 'Y-m-d', strtotime( $job->post_date ) ) ?> - 
+// 					<?php echo ( '' == $displayenddate )?( __( 'End of Time', 'jobman' ) ):( $displayenddate ) ?>
+// 					<br/>
+// 				<?= $status ?></td>
+// 				<td><?= $applications ?></td>
+// 			</tr>
 
 }
 

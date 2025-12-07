@@ -202,6 +202,19 @@ function jobman_get_app(){
 	return $applypage;
 }
 
+// Retrieves the application child posts for the indicated job id
+function jobman_get_job_apps( $id ){
+	$args = array (
+		'post_type' => 'jobman_app',
+		'meta_key' => 'job',
+		'meta_value' => $id,
+		'post_status' => 'publish,private',
+		'numberposts' => -1
+	);
+	$children = get_posts ( $args );
+	return $children;
+}
+
 // Takes the id of the job and returns true if the job is active
 // Returns false if it's inactive or couldn't be found
 function jobman_job_is_active( $id ){
