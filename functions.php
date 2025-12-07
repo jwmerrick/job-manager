@@ -91,15 +91,33 @@ function jobman_page_taxonomy_setup() {
 	register_post_type( 'jobman_interview', array( 'exclude_from_search' => true ) );
 
 	// Create our new taxonomy thing
-	$options = get_option( 'jobman_options' );
-	
-	$root = get_page( $options['main_page'] );
-	$url = get_page_uri( $root->ID );
+	$url = get_page_uri( jobman_get_root() );
 	
 	if( substr( $url, 0, 1 ) != '/' )
 		$url = "/$url";
 	
-	register_taxonomy( 'jobman_category', array( 'jobman_job', 'jobman_app' ), array( 'hierarchical' => false, 'label' => __( 'Category', 'series' ), 'query_var' => 'jcat', 'rewrite' => array( 'slug' => $url ) ) );
+	register_taxonomy( '
+		jobman_category', 
+		array( 'jobman_job', 'jobman_app' ), 
+		array( 'hierarchical' => false, 
+			'label' => __( 'Category', 'series' ), 
+			'query_var' => 'jcat', 
+			'rewrite' => array( 'slug' => $url )
+		 )
+	);
+}
+
+// Add custom post type 'jobman_archive' for jobs
+// Bult in types, 'draft', 'future', and 'publish' will be used the same as core
+// Previously 'draft' was used to indicate an archived job
+function jobman_post_status_setup(){
+	register_post_status( 'jobman_archive', array(
+            'label'                     => __( 'Archived Job', 'jobman' ),
+            'public'                    => false,
+            'exclude_from_search'       => true,
+            'show_in_admin_all_list'    => false,
+            'show_in_admin_status_list' => false,
+	) );
 }
 
 function jobman_page_hierarchical_setup( $types ) {

@@ -47,6 +47,9 @@ define( 'JOBMAN_BASENAME', plugin_basename( __FILE__ ) );
 // Define the complete directory path
 define( 'JOBMAN_DIR', dirname( __FILE__ ) );
 
+// Runs the tests if defined.  Comment out for production mode.
+define( 'JOBMAN_TESTING', true );
+
 // Some Global vars
 
 global $jobman_shortcodes;
@@ -107,7 +110,10 @@ require_once( JOBMAN_DIR . '/widgets.php' );
 require_once( JOBMAN_DIR . '/hooks.php' );
 
 // Add support for shotcodes in regular pages and posts
-require_once( JOBMAN_DIR . '/shortcodes.php');
+require_once( JOBMAN_DIR . '/shortcodes.php' );
+
+// Add unit tests
+require_once( JOBMAN_DIR . '/tests/tests.php' );
 
 // If the user is after a CSV export, give it to them
 if( array_key_exists( 'jobman-mass-edit', $_REQUEST ) && 'export-csv' == $_REQUEST['jobman-mass-edit'] )

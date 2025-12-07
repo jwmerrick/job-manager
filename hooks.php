@@ -38,6 +38,9 @@ add_filter( 'the_permalink_rss', 'jobman_rss_page_link', 10 );
 // Our custom page/taxonomy setup
 add_action( 'init', 'jobman_page_taxonomy_setup' );
 
+// Set up custom post status for jobs
+add_action ( 'init', 'jobman_post_status_setup');
+
 // RSS Feeds
 add_action( 'do_feed_jobman', 'jobman_rss_feed', 1, 1 );
 
