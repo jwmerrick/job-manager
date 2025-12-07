@@ -259,8 +259,9 @@ function jobman_job_is_future( $id ){
 	$is_future = false;
 	$job_post = get_post($id);
 	if (is_object($job_post)){
-			if( $job_post->post_status == 'future')
-			$is_future = false;
+		if( $job_post->post_status == 'future'){
+			$is_future = true;
+		}
 	}
 	return $is_future;
 }
@@ -272,7 +273,7 @@ function jobman_job_is_draft( $id ){
 	$job_post = get_post($id);
 	if (is_object($job_post)){
 			if( $job_post->post_status == 'draft')
-			$is_draft = false;
+			$is_draft = true;
 	}
 	return $is_draft;
 }
