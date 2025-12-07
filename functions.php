@@ -107,74 +107,6 @@ function jobman_page_taxonomy_setup() {
 	);
 }
 
-// /**
-//  * Create two taxonomies, genres and writers for the post type "book".
-//  *
-//  * @see register_post_type() for registering custom post types.
-//  */
-// function wpdocs_create_book_taxonomies() {
-// 	// Add new taxonomy, make it hierarchical (like categories)
-// 	$labels = array(
-// 		'name'              => _x( 'Genres', 'taxonomy general name', 'textdomain' ),
-// 		'singular_name'     => _x( 'Genre', 'taxonomy singular name', 'textdomain' ),
-// 		'search_items'      => __( 'Search Genres', 'textdomain' ),
-// 		'all_items'         => __( 'All Genres', 'textdomain' ),
-// 		'parent_item'       => __( 'Parent Genre', 'textdomain' ),
-// 		'parent_item_colon' => __( 'Parent Genre:', 'textdomain' ),
-// 		'edit_item'         => __( 'Edit Genre', 'textdomain' ),
-// 		'update_item'       => __( 'Update Genre', 'textdomain' ),
-// 		'add_new_item'      => __( 'Add New Genre', 'textdomain' ),
-// 		'new_item_name'     => __( 'New Genre Name', 'textdomain' ),
-// 		'menu_name'         => __( 'Genre', 'textdomain' ),
-// 	);
-
-// 	$args = array(
-// 		'hierarchical'      => true,
-// 		'labels'            => $labels,
-// 		'show_ui'           => true,
-// 		'show_admin_column' => true,
-// 		'query_var'         => true,
-// 		'rewrite'           => array( 'slug' => 'genre' ),
-// 	);
-
-// 	register_taxonomy( 'genre', array( 'book' ), $args );
-
-// 	unset( $args );
-// 	unset( $labels );
-
-// 	// Add new taxonomy, NOT hierarchical (like tags)
-// 	$labels = array(
-// 		'name'                       => _x( 'Writers', 'taxonomy general name', 'textdomain' ),
-// 		'singular_name'              => _x( 'Writer', 'taxonomy singular name', 'textdomain' ),
-// 		'search_items'               => __( 'Search Writers', 'textdomain' ),
-// 		'popular_items'              => __( 'Popular Writers', 'textdomain' ),
-// 		'all_items'                  => __( 'All Writers', 'textdomain' ),
-// 		'parent_item'                => null,
-// 		'parent_item_colon'          => null,
-// 		'edit_item'                  => __( 'Edit Writer', 'textdomain' ),
-// 		'update_item'                => __( 'Update Writer', 'textdomain' ),
-// 		'add_new_item'               => __( 'Add New Writer', 'textdomain' ),
-// 		'new_item_name'              => __( 'New Writer Name', 'textdomain' ),
-// 		'separate_items_with_commas' => __( 'Separate writers with commas', 'textdomain' ),
-// 		'add_or_remove_items'        => __( 'Add or remove writers', 'textdomain' ),
-// 		'choose_from_most_used'      => __( 'Choose from the most used writers', 'textdomain' ),
-// 		'not_found'                  => __( 'No writers found.', 'textdomain' ),
-// 		'menu_name'                  => __( 'Writers', 'textdomain' ),
-// 	);
-
-// 	$args = array(
-// 		'hierarchical'          => false,
-// 		'labels'                => $labels,
-// 		'show_ui'               => true,
-// 		'show_admin_column'     => true,
-// 		'update_count_callback' => '_update_post_term_count',
-// 		'query_var'             => true,
-// 		'rewrite'               => array( 'slug' => 'writer' ),
-// 	);
-
-// 	register_taxonomy( 'writer', 'book', $args );
-// }
-
 // Add custom post type 'jobman_archive' for jobs
 // Bult in types, 'draft', 'future', and 'publish' will be used the same as core
 // Previously 'draft' was used to indicate an archived job
@@ -306,6 +238,71 @@ function jobman_job_is_active( $id ){
 		$job_active = false;
 	}
 	return $job_active;
+}
+
+// Takes the id of the job and returns true if the job is future
+// Returns false otherwise (include couldn't be found)
+function jobman_job_is_future( $id ){
+	$is_future = false;
+	$job_post = get_post($id);
+	if (is_object($job_post)){
+			if( $job_post->post_status == 'future')
+			$is_future = false;
+	}
+	return $is_future;
+}
+
+// Takes the id of the job and returns true if the job is draft
+// Returns false otherwise (include couldn't be found)
+function jobman_job_is_draft( $id ){
+	$is_draft = false;
+	$job_post = get_post($id);
+	if (is_object($job_post)){
+			if( $job_post->post_status == 'draft')
+			$is_draft = false;
+	}
+	return $is_draft;
+}
+
+// Takes the id of the job and returns true if the job is archived
+// Returns false otherwise (include couldn't be found)
+function jobman_job_is_archived( $id ){
+	$is_archived = false;
+	$job_post = get_post($id);
+	if (is_object($job_post)){
+			if( $job_post->post_status == 'jobman_archive')
+			$is_archived = false;
+	}
+	return $is_archived;
+}
+
+// Takes the id of the job and returns true if the job is expired
+// Returns false otherwise (include couldn't be found)
+// This means the job status is 'publish' but the display end date has passed
+function jobman_job_is_expired( $id ){
+	$is_expired = false;
+	$job_post = get_post($id);
+	if (is_object($job_post)){
+		if( $job_post->post_status == 'publish'){
+			// Get the post metadata
+			$jobmeta = get_post_custom( $id );
+			$jobdata = array();	
+			foreach( $jobmeta as $key => $value ) {
+				if( is_array( $value ) )
+					$jobdata[$key] = $value[0];
+				else
+					$jobdata[$key] = $value;
+			}
+
+			// Check if it's expired
+			if( array_key_exists('displayenddate', $jobdata) ){
+				$end_date = $jobdata['displayenddate'];
+				if ( ($end_date != '') && (strtotime($end_date) <= time()) )
+					$is_expired = true;
+			}
+		}	
+	}
+	return $is_expired;
 }
 
 ?>

@@ -17,20 +17,18 @@
 // Require once the tests you want to include
 // Then register them in jobman_tests_add to run on admin_init
 require_once ( JOBMAN_DIR . "/tests/test-jobman-post-status-setup.php");
+require_once ( JOBMAN_DIR . "/tests/test-jobman-job-is-expired.php");
 
 if ( defined ( 'JOBMAN_TESTING' ) ) {
     if ( JOBMAN_TESTING ) {
-        jobman_tests_add();
-        error_log('------JOB-MANAGER-UNIT-TESTS-ENABLED------');
+        add_action ( 'admin_init', 'jobman_tests_run' );
     }
 }
 
-
-// Add the unit tests that you want to run
-// Triggered on admin_init
-function jobman_tests_add(){
-    add_action ( 'admin_init', 'test_jobman_post_status_setup' );
+function jobman_tests_run(){
+    error_log('------JOB-MANAGER-UNIT-TESTS-ENABLED------');
+    test_jobman_post_status_setup();
+    test_jobman_job_is_expired();
 }
-
 
 ?>

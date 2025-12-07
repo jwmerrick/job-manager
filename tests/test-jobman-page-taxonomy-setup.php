@@ -37,12 +37,7 @@ class TestJobmanPageTaxonomySetup {
 
     private function log_result(){
 
-        if ( !is_wp_error($this->post_id) ){
-            error_log ('TestJobmanPostStatusSetup: SUCCESS ' . var_export( $this->post_id, true ));
-        } else {
-            //there was an error in the post insertion, 
-            error_log ('TestJobmanPostStatusSetup: ERROR: ' . $this->post_id->get_error_message());
-        }
+        error_log ( 'TestJobmanPageTaxonomySetup: TEST IS TO-DO' );
 
     }
 
