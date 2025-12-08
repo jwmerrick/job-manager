@@ -23,6 +23,7 @@ add_filter( 'the_posts', 'jobman_display_jobs', 10 ) ;
 // Add our init stuff
 add_action( 'init', 'jobman_add_all_shortcodes' );
 add_action( 'init', 'jobman_display_init' );
+add_action( 'init', 'jobman_update_post_statuses' );
 // Set the template we want to use
 add_action( 'template_redirect', 'jobman_display_template' );
 // Add our own <head> information

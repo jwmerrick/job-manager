@@ -87,6 +87,7 @@ if( is_array( $jobman_options ) && array_key_exists( 'fields', $jobman_options )
 
 // Jobman global functions
 require_once( JOBMAN_DIR . '/functions.php' );
+require_once( JOBMAN_DIR . '/class-job-status.php' );
 
 // Jobman setup (for installation/upgrades)
 require_once( JOBMAN_DIR . '/setup.php' );

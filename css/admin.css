@@ -46,9 +46,8 @@ th.jobman-fielddelete {
 #jobman-jobs-list tr.expired {
 	background-color: #fee4f8;
 }
-tr.jobman-expired-jobs td {
+tr.jobman-section-heading td {
 	background: url("../../../../wp-admin/images/gray-grad.png") repeat-x scroll left top #DFDFDF;
-	height: 40px;
 	font-weight: bold;
 	text-align: center;
 	vertical-align: middle;

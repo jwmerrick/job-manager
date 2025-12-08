@@ -107,10 +107,13 @@ function jobman_page_taxonomy_setup() {
 	);
 }
 
-// Add custom post type 'jobman_archive' for jobs
+// Add custom post types 'jobman_archive' and 'jobman_expired' for jobs
 // Bult in types, 'draft', 'future', and 'publish' will be used the same as core
-// Previously 'draft' was used to indicate an archived job
+// Previously 'draft' was used to indicate an archived job, and we did a bunch
+// Of date stuff to figure out if a job is expired.  Instead, on init, we'll
+// query 'publish' jobs and if they're expired, et their status.
 function jobman_post_status_setup(){
+
 	register_post_status( 'jobman_archive', array(
             'label'                     => __( 'Archived Job', 'jobman' ),
             'public'                    => false,
@@ -118,6 +121,15 @@ function jobman_post_status_setup(){
             'show_in_admin_all_list'    => false,
             'show_in_admin_status_list' => false,
 	) );
+	
+	register_post_status( 'jobman_expired', array(
+            'label'                     => __( 'Expired Job', 'jobman' ),
+            'public'                    => false,
+            'exclude_from_search'       => true,
+            'show_in_admin_all_list'    => false,
+            'show_in_admin_status_list' => false,
+	) );
+
 }
 
 function jobman_page_hierarchical_setup( $types ) {
@@ -285,7 +297,7 @@ function jobman_job_is_archived( $id ){
 	$job_post = get_post($id);
 	if (is_object($job_post)){
 			if( $job_post->post_status == 'jobman_archive')
-			$is_archived = false;
+			$is_archived = true;
 	}
 	return $is_archived;
 }
@@ -297,24 +309,8 @@ function jobman_job_is_expired( $id ){
 	$is_expired = false;
 	$job_post = get_post($id);
 	if (is_object($job_post)){
-		if( $job_post->post_status == 'publish'){
-			// Get the post metadata
-			$jobmeta = get_post_custom( $id );
-			$jobdata = array();	
-			foreach( $jobmeta as $key => $value ) {
-				if( is_array( $value ) )
-					$jobdata[$key] = $value[0];
-				else
-					$jobdata[$key] = $value;
-			}
-
-			// Check if it's expired
-			if( array_key_exists('displayenddate', $jobdata) ){
-				$end_date = $jobdata['displayenddate'];
-				if ( ($end_date != '') && (strtotime($end_date) <= time()) )
-					$is_expired = true;
-			}
-		}	
+			if( $job_post->post_status == 'jobman_expired')
+			$is_expired = true;
 	}
 	return $is_expired;
 }

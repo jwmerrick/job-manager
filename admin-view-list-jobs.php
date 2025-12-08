@@ -23,7 +23,6 @@
             <input type="submit" name="submit" class="button-primary" value="<?php _e( 'New Job', 'jobman' ) ?>" />
         </p>
     </form>
-    <?php $jobs = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=publish,draft,future' );  ?>
     <form action="<?php echo admin_url('admin-post.php'); ?>" method="post">
         <input type="hidden" name="action" value="jobman_mass_edit_jobs"> 
         <?php wp_nonce_field( 'jobman-mass-edit-jobs' ); ?>
@@ -46,19 +45,47 @@
                 <th scope="col"><?php _e( 'Applications', 'jobman' ) ?></th>
             </tr>
         </thead>
+        <tr class="jobman-section-heading">
+            <td colspan="<?php echo $fieldcount + 5 ?>">
+                <?php _e( 'Draft and Future Jobs', 'jobman' ) ?>
+            </td>
+        </tr>
         <?php
-        if( count( $jobs ) > 0 ) {
-            $expired = jobman_list_jobs_data( $jobs, false );
-            if( count( $expired ) ) {
+        if( count( $jobs_draft ) > 0 ) {
+            jobman_list_jobs_data( $jobs_draft );
+        }
+        if( count( $jobs_future ) > 0 ) {
+            jobman_list_jobs_data( $jobs_future );
+        }
         ?>
-        <tr class="jobman-expired-jobs">
+        <tr class="jobman-section-heading">
+            <td colspan="<?php echo $fieldcount + 5 ?>">
+                <?php _e( 'Active Jobs', 'jobman' ) ?>
+            </td>
+        </tr>
+        <?php
+        if( count( $jobs_active ) > 0 ) {
+            jobman_list_jobs_data( $jobs_active );
+        }
+        ?>
+        <tr class="jobman-section-heading">
             <td colspan="<?php echo $fieldcount + 5 ?>">
                 <?php _e( 'Expired and Archived Jobs', 'jobman' ) ?>
             </td>
         </tr>
-        <?php } jobman_list_jobs_data( $expired, true ); } else { $fieldcount += 5; ?>
+        <?php  
+        if( count( $jobs_expired ) > 0){
+            jobman_list_jobs_data( $jobs_expired );
+        } 
+        if( count( $jobs_archive ) > 0){
+            jobman_list_jobs_data( $jobs_archive );
+        }
+        if( !wp_count_posts ( 'jobman_job' ) ){
+        ?>
         <tr>
-            <td colspan="<?php echo $fieldcount ?>"><?php _e( 'There are currently no jobs in the system.', 'jobman' ) ?></td>
+            <td colspan="<?php echo $fieldcount + 5 ?>">
+                <?php _e( 'There are currently no jobs in the system.', 'jobman' ) ?>
+            </td>
         </tr>
         <?php } ?>
     </table>
@@ -78,30 +105,21 @@
 // Generates the html for the job list, and return a list of expired jobs
 // Can be called back with that same list of expired jobs and $showexpired
 // set to true in order to generate the html for the list of expired jobs.
-function jobman_list_jobs_data( $jobs, $showexpired = false ) {
+function jobman_list_jobs_data( $jobs ) {
 		global $current_user;
 
 		if( ! is_array( $jobs ) || count( $jobs ) <= 0 )
 			return;
 
-		$options = get_option( 'jobman_options' );
-		$fields = $options['job_fields'];
-
 		wp_get_current_user();
 
-		$expiredjobs = array();
 		foreach( $jobs as $job ) {
-            if ( jobman_job_is_expired( $job->ID ) || jobman_job_is_archived ( $job->ID ) ){
-                $expiredjobs[] = $job;
-            }
-            jobman_admin_joblist_render_single ( $job, $showexpired );
+            jobman_admin_joblist_render_single ( $job );
         }
-
-		return $expiredjobs;
 }
 
 // Renders the html for a a single job to be displayed in the job list
-function jobman_admin_joblist_render_single( $job, $showexpired ){
+function jobman_admin_joblist_render_single( $job ){
     $id = $job->ID;
 	$options = get_option( 'jobman_options' );
     $cats = wp_get_object_terms( $id, 'jobman_category' );
@@ -116,24 +134,6 @@ function jobman_admin_joblist_render_single( $job, $showexpired ){
     $displayenddate = get_post_meta( $id, 'displayenddate', true );
     if ( $displayenddate == '' ){
         $displayenddate = __( 'End of Time', 'jobman' );
-    }
-
-    // Decide whether to display under "Active" jobs or "Expired" jobs in the job list
-    // I like 'future' jobs to show as future in the top part of the list
-    $display = false;
-    if ( !$showexpired ){
-        if ( jobman_job_is_draft($id) || jobman_job_is_future($id) || jobman_job_is_active($id) ){
-            $display = true;
-        }
-    } else {
-        if ( jobman_job_is_expired($id) || jobman_job_is_archived($id) ){
-            $display = true;
-        }
-    }
-
-    // If it's an active job but show_expired is set or vice-versa, do no more
-    if ( !$display ){
-        return;
     }
 
     $num_apps = 0;
@@ -216,10 +216,10 @@ function jobman_admin_joblist_render_single( $job, $showexpired ){
 			    <a href="<?= $edit_link ?>"><?php _e( 'Edit', 'jobman' ) ?></a> |
             <?php } ?>
 			<a href="<?= $view_link ?>"><?php _e( 'View', 'jobman' ) ?></a>
-            <?php if ( $can_edit && $display ){ ?>
+            <?php if ( $can_edit ){ ?>
 			    | <a href="<?= $archive_link ?>"><?php _e( 'Archive', 'jobman' ) ?></a>
             <?php } ?>
-            <?php if ( $can_edit && !$display ){ ?>
+            <?php if ( $can_edit ){ ?>
 			    | <a href="<?= $unarchive_link ?>"><?php _e( 'Unarchive', 'jobman' ) ?></a>
             <?php } ?>
         </div>
@@ -235,7 +235,9 @@ function jobman_admin_joblist_render_single( $job, $showexpired ){
 		<?= $status ?>
     </td>
 	<td>
-        <?php count ( jobman_get_job_apps( $id ) ); ?>
+        <a href="<?= $apps_link ?>">
+            <?= $num_apps ?>
+        </a>
     </td>
 </tr>
 

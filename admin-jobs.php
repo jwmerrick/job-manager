@@ -39,6 +39,11 @@ function jobman_list_jobs() {
 	// or to edit an individual job (which triggerd the job edit form), then we fall
 	// through to display the job list.
 
+	$jobs_draft = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=draft' );
+	$jobs_future = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=future' );
+	$jobs_active = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=publish' );
+	$jobs_expired = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=jobman_expired' );
+	$jobs_archive = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=jobman_archive' );
 	include ( 'admin-view-list-jobs.php' );
 
 }
