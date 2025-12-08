@@ -18,6 +18,7 @@
 // Then register them in jobman_tests_add to run on admin_init
 require_once ( JOBMAN_DIR . "/tests/test-jobman-post-status-setup.php");
 require_once ( JOBMAN_DIR . "/tests/test-jobman-job-is-expired.php");
+require_once ( JOBMAN_DIR . "/tests/test-class-job-status.php");
 
 if ( defined ( 'JOBMAN_TESTING' ) ) {
     if ( JOBMAN_TESTING ) {
@@ -29,6 +30,7 @@ function jobman_tests_run(){
     error_log('------JOB-MANAGER-UNIT-TESTS-ENABLED------');
     test_jobman_post_status_setup();
     test_jobman_job_is_expired();
+    test_class_job_status();
 }
 
 ?>

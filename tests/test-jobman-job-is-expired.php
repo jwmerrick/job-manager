@@ -2,9 +2,9 @@
 /**
  * Unit test for jobman_job_is_expired() function
  *
- * Add a post with a status publish and and end date in the past
- * Then test that it returns true.  Change the date to future and check that
- * it returns false.
+ * Add a post with a status jobman_expired and and end date in the past
+ * Then test that it returns true.  Change the date to future and status
+ * to publish and check that it returns false.
  * File: functions.php
  * Function or Class: jobman_post_status_setup()
  *
@@ -47,7 +47,7 @@ class TestJobmanJobIsExpired {
             'post_title'    => 'Test Expired Post',
             'post_content'  => 'This is the test expired post.',
             'post_type'     => 'jobman_job',
-            'post_status'   => 'publish',
+            'post_status'   => 'jobman_expired',
             'post_author'   => 1
         );
 
@@ -72,6 +72,13 @@ class TestJobmanJobIsExpired {
         // Set expire 7 days in the future
         $end_date = date ( 'Y-m-d', strtotime('+7 days', time()));
         update_post_meta( $this->post_id, 'displayenddate', $end_date );
+        
+        $args = array();
+        $args['ID'] = $this->post_id;
+        $args['post_status'] = 'publish'; // Set the desired status
+
+        // Update the post in the database
+        wp_update_post( $args );
 
         $this->not_expired_success = !jobman_job_is_expired( $this->post_id );
 

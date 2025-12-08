@@ -9,6 +9,9 @@ Complete:
 [X] Do not flush rewrite rules on every page load
 [X] Fix Notifications (add / delete / archive) to use core functionality
 [X] On admin-interviews, get call to undefined function cal_days_in_month -> Requires PHP calendar extension
+### Post Status
+[X] Set jobs to publish in future with status "Future'.  WP will change them to "Publish" automatically.
+[X] Add custom post status "Archive" for jobs marked as archive.
 
 To-Do:
 [ ] RSS Endpoint, Enable / Disable in Admin settings, shortcode for RSS (It's in the code, but not documented)
@@ -20,12 +23,15 @@ Add Help Pages to Admin
 Add `delete_plugin` functionality
 
 ### Post Status
-The only post statuses used are "Draft" for jobs marked as archive and "Publish" for jobs that are future.  Modify the post status usage to leverage WP's built-in post functionality.
-[X] Set jobs to publish in future with status "Future'.  WP will change them to "Publish" automatically.
-[ ] Add custom post status "Archive" for jobs marked as archive.
-[ ] New jobs can be saved as "Draft".  When editing a job, instead of "Save", will have "Save Draft" then "Preview", "Publish", "Archive"...  also add "Delete"
+
+[ ] New jobs can be saved as "Draft".  When editing a job, instead of "Save", will have 
+        "Save Draft" then "Preview", "Publish", "Archive"...  also add "Delete"
 [ ] Need database update to change status to "Archive" for those that are in the past or are "Draft"
     -> This will require going from database V19 to database V20 see `setup.php`
+[ ] New database version... Add to `update` to modify the post status for jobs:
+    -> Change `draft` to `jobman_archive`
+    -> Change `publish` where `displayenddate` is in the past to `jobman_expired`
+        -> this can be done with `jobman_update_post_statuses()`
 
 ## v1.0.0 -> 
 Add REST endpoint for integration with OpenCATS

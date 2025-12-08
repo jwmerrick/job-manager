@@ -12,8 +12,7 @@
  */
 
 function jobman_update_post_statuses() {
-    $init_post_status = new JobmanJobStatus();
-    $init_post_status->flag_expired_posts();
+    JobmanJobStatus::flag_expired_posts();
 }
 
 class JobmanJobStatus {
@@ -26,26 +25,26 @@ class JobmanJobStatus {
 
     // If a job is set as 'publish' but it's display end date has passed
     // Then change the status to 'jobman_expired'
-    public function flag_expired_posts(){
+    public static function flag_expired_posts(){
         $jobs = get_posts( 'post_type=jobman_job&numberposts=-1&post_status=publish' );
         foreach ( $jobs as $job ){
-            $this->update_expired( $job );
+            self::update_expired( $job );
         }
     }
 
     // Check expiration date of a single job and updates it's status if it
     // should be flagged as expired
-    private function update_expired( $job ){
+    private static function update_expired( $job ){
         $end_date = get_post_meta( $job->ID, 'displayenddate', true ); 
         if ( ( $end_date != '' ) && ( strtotime( $end_date ) <= time() ) ){
-            // It's expired, set to jobman_expired
+            // It's expired: set to jobman_expired
             // Create an array with the post data to update
-            $my_post = array();
-            $my_post['ID'] = $job->ID;
-            $my_post['post_status'] = 'jobman_expired'; // Set the desired status
+            $args = array();
+            $args['ID'] = $job->ID;
+            $args['post_status'] = 'jobman_expired'; // Set the desired status
 
             // Update the post in the database
-            wp_update_post( $my_post );
+            wp_update_post( $args );
         }
     }
 }
