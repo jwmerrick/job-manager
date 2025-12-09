@@ -101,7 +101,7 @@ function jobman_job_archive() {
 	if( ! is_array( $jobs ) )
 		return;
 
-	$data = array( 'post_status' => 'draft' );
+	$data = array( 'post_status' => 'jobman_archive' );
 	foreach( $jobs as $job ) {
 		$data['ID'] = $job;
 		wp_update_post( $data );

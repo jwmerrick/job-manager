@@ -157,15 +157,11 @@ function jobman_admin_joblist_render_single( $job ){
     }
 
     $edit_link = admin_url( 'admin.php?page=jobman-list-jobs&amp;jobman-jobid=' . $id );
-
     $view_link = get_page_link( $id );
-
     $massedit_link = wp_nonce_url( admin_url('admin-post.php'), 'jobman-mass-edit-jobs' );
     $massedit_link = add_query_arg('action', 'jobman_mass_edit_jobs', $massedit_link);
     $massedit_link = add_query_arg('job[]', $id, $massedit_link);
-
 	$archive_link = add_query_arg('jobman-mass-edit-jobs', 'archive', $massedit_link);
-
     $unarchive_link = add_query_arg('jobman-mass-edit-jobs', 'unarchive', $massedit_link);
 
     // Items to show above display dates in list
@@ -216,10 +212,10 @@ function jobman_admin_joblist_render_single( $job ){
 			    <a href="<?= $edit_link ?>"><?php _e( 'Edit', 'jobman' ) ?></a> |
             <?php } ?>
 			<a href="<?= $view_link ?>"><?php _e( 'View', 'jobman' ) ?></a>
-            <?php if ( $can_edit ){ ?>
+            <?php if ( $can_edit && jobman_job_is_active( $id ) ){ ?>
 			    | <a href="<?= $archive_link ?>"><?php _e( 'Archive', 'jobman' ) ?></a>
             <?php } ?>
-            <?php if ( $can_edit ){ ?>
+            <?php if ( $can_edit && jobman_job_is_archived( $id ) ){ ?>
 			    | <a href="<?= $unarchive_link ?>"><?php _e( 'Unarchive', 'jobman' ) ?></a>
             <?php } ?>
         </div>

@@ -230,39 +230,14 @@ function jobman_get_job_apps( $id ){
 // Takes the id of the job and returns true if the job is active
 // Returns false if it's inactive or couldn't be found
 function jobman_job_is_active( $id ){
-	$job_active = true;
+	$is_active = false;
 	$job_post = get_post($id);
 	if (is_object($job_post)){
-
-		// Get the post metadata
-		$jobmeta = get_post_custom( $id );
-		$jobdata = array();	
-		foreach( $jobmeta as $key => $value ) {
-			if( is_array( $value ) )
-				$jobdata[$key] = $value[0];
-			else
-				$jobdata[$key] = $value;
+		if( $job_post->post_status == 'publish'){
+			$is_active = true;
 		}
-
-		// Check if it's expired
-		if( array_key_exists('displayenddate', $jobdata) ){
-			$end_date = $jobdata['displayenddate'];
-			if ( ($end_date != '') && (strtotime($end_date) <= time()) )
-				$job_active = false;
-		}	 
-
-		// Check if it's in the future
-		if( strtotime( $job_post->post_date ) > time() )
-			$job_active = false;
-
-		// Check if it's been archived
-		if( $job_post->post_status == 'draft')
-			$job_active = false;
-
-	} else {
-		$job_active = false;
 	}
-	return $job_active;
+	return $is_active;
 }
 
 // Takes the id of the job and returns true if the job is future
