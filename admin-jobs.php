@@ -62,6 +62,13 @@ function jobman_edit_job( $jobid ) {
 		check_admin_referer( 'jobman-edit-job-$jobid' );
 	}
 
+	// Figure out the appropriate buttons to display at the bottom of the form
+	// If it's a new job, then Create Job and Preview Job are appropriate
+	// If it's an existing job, if draft, then Publish Job and Preview job are appropriate
+	// If it's an existing job, if active / future, then Update, Archive, Preview are appropriate
+	// If it's an existing job, if expired, the Update, Archive, Preview are appropriate
+	// If it's an existing job, if archived, then Update, Unarchive, Preview are apprpriate
+	// Need to make sure there's a handler for each in admin-job-edit.php
 	if( 'new' == $jobid ) {
 		$title = __( 'Job Manager: New Job', 'jobman' );
 		$submit = __( 'Create Job', 'jobman' );
@@ -76,9 +83,12 @@ function jobman_edit_job( $jobid ) {
 		if( NULL == $job )
 			// No job associated with that id.
 			return 0;
-
 		$display_jobid = $jobid;
 	}
+	
+	$preview = __('Preview Job', 'jobman');
+	$publish = __('Publish Job', 'jobman');
+	$archive = __('Archive Job', 'jobman');
 
 	if( isset( $job->ID ) ) {
 		$jobid = $job->ID;
@@ -104,7 +114,8 @@ function jobman_edit_job( $jobid ) {
 			wp_tiny_mce( false, array( 'editor_selector' => 'jobman-editor' ) );
 	}
 ?>
-	<form action="<?php echo admin_url('admin-post.php'); ?>" enctype="multipart/form-data" method="post">
+	
+<form action="<?php echo admin_url('admin-post.php'); ?>" enctype="multipart/form-data" method="post">
 	<input type="hidden" name="action" value="job_edit"> 
 	<input type="hidden" name="jobmansubmit" value="1" />
 	<input type="hidden" name="jobman-jobid" value="<?= $jobid ?>" />
@@ -396,8 +407,9 @@ function jobman_edit_job( $jobid ) {
 		</table>
 		<p class="submit">
 			<input type="submit" name="submit" class="button-primary" value="<?= $submit ?>" />
-			<?php $preview = __('Preview Job', 'jobman'); ?>
 			<input type="submit" name="preview" class="button-primary" value="<?= $preview ?>" style="margin-left: 1em;"/>
+			<input type="submit" name="publish" class="button-primary" value="<?= $publish ?>" style="margin-left: 1em;"/>
+			<input type="submit" name="archive" class="button-primary" value="<?= $archive ?>" style="margin-left: 1em;"/>
 		</p>
 	</div>
 	</form>

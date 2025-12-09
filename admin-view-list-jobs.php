@@ -45,41 +45,29 @@
                 <th scope="col"><?php _e( 'Applications', 'jobman' ) ?></th>
             </tr>
         </thead>
+        <?php if ( ( count ($jobs_draft) > 0 ) || ( count ($jobs_future) > 0 ) ) { ?>
         <tr class="jobman-section-heading">
             <td colspan="<?php echo $fieldcount + 5 ?>">
                 <?php _e( 'Draft and Future Jobs', 'jobman' ) ?>
             </td>
         </tr>
-        <?php
-        if( count( $jobs_draft ) > 0 ) {
-            jobman_list_jobs_data( $jobs_draft );
-        }
-        if( count( $jobs_future ) > 0 ) {
-            jobman_list_jobs_data( $jobs_future );
-        }
-        ?>
+        <?php } ?>
+        <?php jobman_admin_joblist_render_group( $jobs_draft ); ?>
+        <?php jobman_admin_joblist_render_group( $jobs_future ); ?>
         <tr class="jobman-section-heading">
             <td colspan="<?php echo $fieldcount + 5 ?>">
                 <?php _e( 'Active Jobs', 'jobman' ) ?>
             </td>
         </tr>
-        <?php
-        if( count( $jobs_active ) > 0 ) {
-            jobman_list_jobs_data( $jobs_active );
-        }
-        ?>
+        <?php jobman_admin_joblist_render_group( $jobs_active ); ?>
         <tr class="jobman-section-heading">
             <td colspan="<?php echo $fieldcount + 5 ?>">
                 <?php _e( 'Expired and Archived Jobs', 'jobman' ) ?>
             </td>
         </tr>
+        <?php jobman_admin_joblist_render_group( $jobs_expired ); ?>
+        <?php jobman_admin_joblist_render_group( $jobs_archive ); ?>
         <?php  
-        if( count( $jobs_expired ) > 0){
-            jobman_list_jobs_data( $jobs_expired );
-        } 
-        if( count( $jobs_archive ) > 0){
-            jobman_list_jobs_data( $jobs_archive );
-        }
         if( !wp_count_posts ( 'jobman_job' ) ){
         ?>
         <tr>
@@ -105,14 +93,7 @@
 // Generates the html for the job list, and return a list of expired jobs
 // Can be called back with that same list of expired jobs and $showexpired
 // set to true in order to generate the html for the list of expired jobs.
-function jobman_list_jobs_data( $jobs ) {
-		global $current_user;
-
-		if( ! is_array( $jobs ) || count( $jobs ) <= 0 )
-			return;
-
-		wp_get_current_user();
-
+function jobman_admin_joblist_render_group( $jobs ) {
 		foreach( $jobs as $job ) {
             jobman_admin_joblist_render_single ( $job );
         }
