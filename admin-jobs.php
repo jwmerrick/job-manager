@@ -12,7 +12,7 @@ function jobman_list_jobs() {
 		if( 'delete' == $_REQUEST['jobman-mass-edit-jobs'] ) {
 			if( ! array_key_exists( 'jobman-delete-confirmed', $_REQUEST ) ) {
 				check_admin_referer( 'jobman-mass-edit-jobs' );
-				jobman_job_delete_confirm();
+				include ( 'admin-view-delete-confirm.php' );
 				return;
 			}
 		}
@@ -415,23 +415,6 @@ function jobman_edit_job( $jobid ) {
 	</form>
 <?php
 	return 1;
-}
-
-function jobman_job_delete_confirm() {
-?>
-	<div class="wrap">
-		<form action="<?php echo admin_url('admin-post.php'); ?>" method="post">
-			<input type="hidden" name="action" value="jobman_mass_edit_jobs"> 
-			<input type="hidden" name="jobman-delete-confirmed" value="1" />
-			<input type="hidden" name="jobman-mass-edit-jobs" value="delete" />
-			<input type="hidden" name="jobman-job-ids" value="<?php echo implode( ',', $_REQUEST['job'] ) ?>" />
-			<?php wp_nonce_field( 'jobman-mass-delete-jobs' ); ?>
-			<h2><?php _e( 'Job Manager: Jobs', 'jobman' ) ?></h2>
-			<p class="error"><?php _e( 'This will permanently delete all of the selected jobs. Please confirm that you want to continue.', 'jobman' ) ?></p>
-			<p class="submit"><input type="submit" name="submit"  class="button-primary" value="<?php _e( 'Delete Jobs', 'jobman' ) ?>" /></p>
-		</form>
-	</div>
-<?php
 }
 
 ?>

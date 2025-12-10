@@ -14,8 +14,11 @@ Complete:
 [X] Add custom post status "Archive" for jobs marked as archive.
 
 To-Do:
-[ ] RSS Endpoint, Enable / Disable in Admin settings, shortcode for RSS (It's in the code, but not documented)
 [ ] Use of deprecated get_currentuserinfo() in admin-comments.php, admin-emails.php, frontend-application.php, frontend-user.php
+[ ] Break out HTML for admin job edit form into seperate view `admin-view-edit-job.php`
+
+## v0.8.5
+[ ] RSS Endpoint, Enable / Disable in Admin settings, shortcode for RSS (It's in the code, but not documented)
 [ ] Deactivate should remove or make "Draft" the Job Manager main page
 
 ## v0.9.0 ->
