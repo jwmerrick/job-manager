@@ -86,9 +86,27 @@ function jobman_edit_job( $jobid ) {
 		$display_jobid = $jobid;
 	}
 	
-	$preview = __('Preview Job', 'jobman');
-	$publish = __('Publish Job', 'jobman');
-	$archive = __('Archive Job', 'jobman');
+	$preview = __('Preview Job', 'jobman');							// Shows always
+	$publish = __('Publish Job', 'jobman');							// Shows if draft
+	$archive = __('Archive Job', 'jobman');							// Shows if future, publish, or expired
+
+	$show_preview = true;
+
+	if ( jobman_job_is_draft ( $jobid ) ){
+		$show_publish = true;
+	} else {
+		$show_publish = false;
+	}
+
+	if ( jobman_job_is_future ( $jobid ) ){
+		$show_archive = true;
+	} elseif ( jobman_job_is_active ( $jobid ) ){
+		$show_archive = true;
+	} elseif ( jobman_job_is_expired ( $jobid ) ){
+		$show_archive = true;
+	} else {
+		$show_archive = false;
+	}
 
 	if( isset( $job->ID ) ) {
 		$jobid = $job->ID;
@@ -406,10 +424,17 @@ function jobman_edit_job( $jobid ) {
 			</tr>
 		</table>
 		<p class="submit">
+			<!-- This one is either add (if new) or update (if existing) -->
 			<input type="submit" name="submit" class="button-primary" value="<?= $submit ?>" />
+			<?php if ( $show_preview ) : ?>
 			<input type="submit" name="preview" class="button-primary" value="<?= $preview ?>" style="margin-left: 1em;"/>
+			<?php endif; ?>
+			<?php if ( $show_publish ) : ?>
 			<input type="submit" name="publish" class="button-primary" value="<?= $publish ?>" style="margin-left: 1em;"/>
+			<?php endif; ?>
+			<?php if ( $show_archive ) : ?>
 			<input type="submit" name="archive" class="button-primary" value="<?= $archive ?>" style="margin-left: 1em;"/>
+			<?php endif; ?>
 		</p>
 	</div>
 	</form>

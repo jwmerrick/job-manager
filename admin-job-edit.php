@@ -1,7 +1,9 @@
 <?php
 /**
- * Handler for job add and edit requests
+ * Handler for job add and edit requests.
  *
+ * Note that these posts com from admin-jobs.php.  This is the handler (logic),
+ * not the add or edit form itself.
  * Reference https://developer.wordpress.org/reference/hooks/admin_post_action/
  * 
  * @category Admin
@@ -16,26 +18,72 @@
 add_action( 'admin_post_job_edit', 'jobman_admin_job_edit' );
 
 // Callback for admin-post.php when action "job_edit" is passed
+// submit, preview, publish, archive are the button names
 function jobman_admin_job_edit() {
     // Handle request then generate response using echo or leaving PHP and using HTML
     error_log ('job edit handler triggered...');
     error_log ( var_export($_REQUEST, true) );
+    
+    $return_code = 1;                                       // Default
 
-    $return_code = 1;                                               // Default
-	if( array_key_exists( 'jobmansubmit', $_REQUEST ) ) {
-	// Job form has been submitted. Update the database.
+    // Check that the request is legit.  If not, bail out
+    if ( array_key_exists( 'jobmansubmit', $_REQUEST ) ) {
+        // Job form has been submitted. Update the database.
         $jobid = $_REQUEST['jobman-jobid'];
-	    check_admin_referer( 'jobman-edit-job-' . $jobid );         // Confirm we're getting a valid call
-        error_log ('Editing job #' . $jobid);
-        if( $jobid == 'new' ){
-            $return_code = jobman_updatedb_add();                   // Add a new job
-        } else {
-            $return_code = jobman_updatedb_edit();                  // Edit an existing job
-        }
-	}
+        check_admin_referer( 'jobman-edit-job-' . $jobid ); // Confirm we're getting a valid call
+    } else {
+        error_log ( 'jobman_admin_job_edit(): ERROR - INVALID REQUEST' );
+        jobman_admin_notice( 'notice-error', 'ERROR - INVALID REQUEST' );
+        jobman_jobedit_redirect( 5 );
+    }
+
+    if ( array_key_exists ( 'submit', $_REQUEST ) ){
+        $op_requested = 'submit';
+    } elseif ( array_key_exists ( 'preview', $_REQUEST ) ){
+        $op_requested = 'preview';
+    } elseif ( array_key_exists ( 'publish', $_REQUEST ) ){
+        $op_requested = 'publish';
+    } elseif ( array_key_exists ( 'archive', $_REQUEST ) ){
+        $op_requested = 'archive';
+    } else {
+        error_log ( 'jobman_admin_job_edit(): ERROR - UNEXPECTED REQUEST' );
+        jobman_admin_notice( 'notice-error', 'ERROR - UNEXPECTED REQUEST' );
+        jobman_jobedit_redirect( 6 );
+    }
+
+    switch ( $op_requested ){
+        case ( 'submit' ):
+            error_log ('Editing job #' . $jobid);
+            if( $jobid == 'new' ){
+                $return_code = jobman_updatedb_add();           // Add a new job
+            } else {
+                $return_code = jobman_updatedb_edit();          // Edit an existing job
+            } 
+            break;
+        case ( 'preview' ):
+            break;
+        case ( 'publish' ):
+            $my_post = array(
+                'ID'=> $jobid,
+                'post_status' => 'publish'
+            );
+            wp_update_post( $my_post );
+            jobman_updatedb_edit();
+            break;
+        case ( 'archive' ):
+            $my_post = array(
+                'ID'=> $jobid,
+                'post_status' => 'jobman_archive'
+            );
+            wp_update_post( $my_post );
+            jobman_updatedb_edit();
+            break;
+        default:
+            break;
+    }
 
 	// Decide which alert box to display
-	// Note these should be updated to use notice-error, notice-success and notice-info
+	// Note these ave been updated to use notice-error, notice-success and notice-info
 	// https://developer.wordpress.org/reference/hooks/admin_notices/
 	switch ($return_code) {
 		case 0:
