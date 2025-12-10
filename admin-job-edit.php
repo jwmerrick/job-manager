@@ -28,9 +28,8 @@ function jobman_admin_job_edit() {
 
     // Check that the request is legit.  If not, bail out
     if ( array_key_exists( 'jobmansubmit', $_REQUEST ) ) {
-        // Job form has been submitted. Update the database.
         $jobid = $_REQUEST['jobman-jobid'];
-        check_admin_referer( 'jobman-edit-job-' . $jobid ); // Confirm we're getting a valid call
+        check_admin_referer( 'jobman-edit-job-' . $jobid ); 
     } else {
         error_log ( 'jobman_admin_job_edit(): ERROR - INVALID REQUEST' );
         jobman_admin_notice( 'notice-error', 'ERROR - INVALID REQUEST' );
@@ -55,12 +54,28 @@ function jobman_admin_job_edit() {
         case ( 'submit' ):
             error_log ('Editing job #' . $jobid);
             if( $jobid == 'new' ){
-                $return_code = jobman_updatedb_add();           // Add a new job
+                $return_code = jobman_updatedb_add();               // Add a new job
             } else {
-                $return_code = jobman_updatedb_edit();          // Edit an existing job
+                $return_code = jobman_updatedb_edit();              // Edit an existing job
             } 
             break;
         case ( 'preview' ):
+            // If it's a new job, save as a draft and preview
+            if( $jobid == 'new' ){
+                $newjob_id = jobman_updatedb_add();                 // Add a new job
+                if ( $newjob_id != 0 ){
+                    $my_post = array(
+                        'ID'=> $newjob_id,
+                        'post_status' => 'draft'
+                    );
+                    wp_update_post( $my_post );
+                    jobman_preview_redirect ( $newjob_id );
+                }
+            // If it's an existing job, save a revision and preview
+            } else {
+                jobman_updatedb_edit();                             // Edit an existing job
+                jobman_preview_redirect ( $jobid );
+            } 
             break;
         case ( 'publish' ):
             $my_post = array(
@@ -113,23 +128,26 @@ function jobman_admin_job_edit() {
 
 // Code from jobman_updatedb responsible for addding a new job
 function jobman_updatedb_add(){
-    $return_code = 1;
     if( 'new' == $_REQUEST['jobman-jobid'] ) {
         $job_data_raw = jobman_get_req_fields();
         $job_data_san = jobman_sanitize_req_fields($job_data_raw);
         $id = wp_insert_post( jobman_build_new_post() );
-        if ($id != 0)                                              // Post created okay
-            $return_code = 2;
+        if ($id == 0) {                                            // Post not created
+            return 0;
+        }
 
         $options = get_option( 'jobman_options' );
 
         // Process the sanitized submitted data
         jobman_updatedb_process( $id, $job_data_san );        
     
-        if( $options['plugins']['gxs'] )
+        if( $options['plugins']['gxs'] ){
             do_action( 'sm_rebuild' );
+        }
+        return $id;
+    } else {
+        return 0;
     }
-    return $return_code;
 }
 
 // Code from jobman_updatedb responsible for editing an existing job
@@ -426,6 +444,16 @@ function jobman_jobedit_redirect( $return_code ) {
 	$redirect_url = add_query_arg('_wp_http_referer', admin_url('admin-post.php'), $redirect_url);
 	$redirect_url = add_query_arg('_wpnonce', $_REQUEST['_wpnonce'], $redirect_url);
 	$redirect_url = add_query_arg('return-code', $return_code, $redirect_url);
+    wp_safe_redirect( $redirect_url );
+    exit;
+}
+
+// Redirect helper: if request is to preview a job
+function jobman_preview_redirect( $jobid ) {
+    $post = get_post( $jobid );
+    $post_slug = $post->post_name;
+    $redirect_url = home_url( '/jobs/' . $post_slug . '/' );
+    $redirect_url = add_query_arg( 'preview', 'true', $redirect_url );
     wp_safe_redirect( $redirect_url );
     exit;
 }

@@ -190,6 +190,7 @@ function jobman_sort_highlighted_jobs( $a, $b ) {
 
 // Creates a page to return a single job post
 // Or a message if the requested job is inactive
+// If the user is logged in and the query key 'preview' is set, then displays
 function jobman_display_job( $job ) {
 	global $jobman_shortcode_job, $jobman_shortcodes, $jobman_field_shortcodes;
 	$options = get_option( 'jobman_options' );
@@ -202,7 +203,13 @@ function jobman_display_job( $job ) {
 	if( $options['user_registration'] && $options['loginform_job'] )
 		$content .= jobman_display_login();
 
-	if( !jobman_job_is_active($job->ID) ) {
+	if ( is_user_logged_in() && ( get_query_var ( 'preview' ) == 'true' ) ){
+		$preview_enabled = true;
+	} else {
+		$preview_enabled = false;
+	}
+
+	if( !jobman_job_is_active($job->ID) && !$preview_enabled ) {
 		return jobman_page_inactive();
 	}
 
