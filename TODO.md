@@ -12,6 +12,7 @@ Complete:
 ### Post Status
 [X] Set jobs to publish in future with status "Future'.  WP will change them to "Publish" automatically.
 [X] Add custom post status "Archive" for jobs marked as archive.
+[X] New jobs can be saved as "Draft".  When editing a new job, instead of "Save", will also have "Preview" -> Creates post as draft and redirects to preview.
 
 To-Do:
 [ ] Use of deprecated get_currentuserinfo() in admin-comments.php, admin-emails.php, frontend-application.php, frontend-user.php
@@ -26,9 +27,6 @@ Add Help Pages to Admin
 Add `delete_plugin` functionality
 
 ### Post Status
-
-[ ] New jobs can be saved as "Draft".  When editing a job, instead of "Save", will have 
-        "Save Draft" then "Preview", "Publish", "Archive"...  also add "Delete"
 [ ] Need database update to change status to "Archive" for those that are in the past or are "Draft"
     -> This will require going from database V19 to database V20 see `setup.php`
 [ ] New database version... Add to `update` to modify the post status for jobs:
